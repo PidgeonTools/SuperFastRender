@@ -2,12 +2,16 @@ import bpy
 import subprocess
 import os
 
+subprocess.run([bpy.app.binary_path_python, "-m", "ensurepip"], check=True)
+subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
+
 try:
     import cv2
     print("success cv2")
 except ImportError:
     print("downloading cv2")
-    subprocess.run([bpy.app.binary_path_python, "-m", "opencv-python", "install", "cv2"], check=True)
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-python"], check=True)
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-contrib-python"], check=True)
     import cv2
     print("success cv2")
     
@@ -16,7 +20,7 @@ try:
     print("success numpy")
 except ImportError:
     print("downloading numpy")
-    subprocess.run([bpy.app.binary_path_python, "-m", "numpy", "install", "numpy"], check=True)
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "numpy"], check=True)
     import numpy as np
     print("success numpy")
 
@@ -25,7 +29,7 @@ try:
     print("success skimage")
 except ImportError:
     print("downloading skimage")
-    subprocess.run([bpy.app.binary_path_python, "-m", "scikit-image", "install", "skimage"], check=True)
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "scikit-image"], check=True)
     from skimage import io
     print("success numpy")
 
