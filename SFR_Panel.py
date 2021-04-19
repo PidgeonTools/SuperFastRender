@@ -49,7 +49,7 @@ class SFR_PT_Panel(Panel):
                 icon='INFO'
                 )
             detection_method.label(
-                text="       NOT YET IMPLEMENTED."
+                text="       EXPERIMENTAL."
                 )
         layout.separator()
         
@@ -80,6 +80,7 @@ class SFR_PT_Panel(Panel):
             row = layout.row()
             row.operator("render.superfastrender_benchmark")
 
-            layout.label(text="Automatic preset:")
-            row = layout.row()
-            row.operator("render.superfastrender_a")
+            fileio = layout.column(align=True)
+
+            fileio.prop(settings, "inputdir", text="Benchmarking Files")
+            fileio.separator()

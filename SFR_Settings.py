@@ -6,7 +6,8 @@ from bpy.types import (
 from bpy.props import (
     EnumProperty,
     IntProperty,
-    FloatProperty
+    FloatProperty,
+    StringProperty
 )
 
 class SFR_Settings(PropertyGroup):
@@ -45,4 +46,11 @@ class SFR_Settings(PropertyGroup):
         description="Choose the resolution the Benchmark should run, higher = more precision but slower",
         options=set(), # Not animatable!
     )
-    
+    inputdir: StringProperty(
+        name="Benchmark Folder",
+        default= "C:/temp/",
+        description="Benchmarking Frames will be saved here",
+        subtype='DIR_PATH',
+        maxlen=1024,
+        options=set(), # Not animatable!
+        )    

@@ -93,7 +93,7 @@ class SFR_Benchmark_cy(Operator):
         #set caustic settings
         scene.cycles.caustics_reflective = False    #done
         scene.cycles.caustics_refractive = False    #done
-        scene.cycles.blur_glossy = 0
+        scene.cycles.blur_glossy = 10
 
         #change volume settings
         scene.cycles.volume_step_rate = 5
@@ -139,7 +139,7 @@ class SFR_Benchmark_cy(Operator):
         scene.render.image_settings.file_format = 'PNG'
         scene.render.image_settings.color_mode = 'RGBA'
 
-        path = 'G:/HDD/Desktop/Speed up your cycles renders!/Test Files/Benchmark/'
+        path = settings.inputdir
 
         iteration = 0
         repeat = self.TestRender(path, iteration, settings)
