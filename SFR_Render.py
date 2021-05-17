@@ -1,11 +1,15 @@
 import subprocess
 import os
+from typing import Dict, List, NamedTuple, Type
 import bpy
+from enum import Enum
 
 from . import SFR_Settings
 
 from bpy.types import (
-    Operator
+    Operator,
+    Scene,
+    Timer
 )
 
 subprocess.run([bpy.app.binary_path_python, "-m", "ensurepip"], check=True)
@@ -41,14 +45,106 @@ except ImportError:
 
 
 
+class Shot(str, Enum):
+    DIFFUSE = 'DIFFUSE'
+    GLOSSY = 'GLOSSY'
+    TRANSMISSION = 'TRANSMISSION'
+    TRANSPARENCY = 'TRANSPARENCY'
+    VOLUME = 'VOLUME'
+    CLAMP_INDIRECT = 'CLAMP_INDIRECT'
+    CAUSTIC_BLUR = 'CAUSTIC_BLUR'
+    CAUSTIC_REFLECTIVE = 'CAUSTIC_REFLECTIVE'
+    CAUSTIC_REFRACTIVE = 'CAUSTIC_REFRACTIVE'
+
+class TestShot:
+    scene: Scene
+
+    def __init__(self, scene: Scene) -> None:
+        self.scene = scene
+
+    def next(self) -> bool:
+        ''' `True` if the operation succeeded, or `False` if it could not determine a next value '''
+        return True
+
+    def back(self) -> None:
+        pass
+
+def make_cycles_simple_numeric_test_shot(key: str):
+    ''' Create a simple TestShot that just increments the cycles parameter `key` by 1, each time '''
+    class CyclesNumericTestShot(TestShot):
+        def next(self) -> bool:
+            self.scene.cycles[key] += 1
+            return True
+
+        def back(self) -> None:
+            self.scene.cycles[key] -= 1
+
+    return CyclesNumericTestShot
+
+def make_cycles_simple_bool_test_shot(key: str):
+    ''' Create a simple TestShot that just sets the cycles parameter to `True`, once only '''
+    class CyclesBoolTestShot(TestShot):
+        def next(self) -> bool:
+            # it can't get any truer than already True
+            if self.scene.cycles[key]:
+                return False
+
+            self.scene.cycles[key] = True
+            return True
+
+        def back(self) -> None:
+            self.scene.cycles[key] = False
+
+    return CyclesBoolTestShot
+
+def make_cycles_bounces_test_shot(key: str):
+    ''' Create a TestShot that always guarantees adequate cycles `max_bounces` '''
+    CyclesTestShot = make_cycles_simple_numeric_test_shot(key)
+    class CyclesBouncesTestShot(CyclesTestShot):
+        def ensure_total_bounces(self) -> None:
+            self.scene.cycles.max_bounces = max(
+                self.scene.cycles.diffuse_bounces,
+                self.scene.cycles.glossy_bounces,
+                self.scene.cycles.transmission_bounces,
+                self.scene.cycles.transparent_max_bounces,
+                self.scene.cycles.volume_bounces,
+            )
+
+        def next(self) -> bool:
+            result = super().next()
+            self.ensure_total_bounces()
+            return result
+
+        def back(self) -> None:
+            result = super().back()
+            self.ensure_total_bounces()
+            return result
+
+    return CyclesBouncesTestShot
+
+test_shots: Dict[Shot, Type[TestShot]] = {
+    Shot.DIFFUSE: make_cycles_bounces_test_shot('diffuse_bounces'),
+    Shot.GLOSSY: make_cycles_bounces_test_shot('glossy_bounces'),
+    Shot.TRANSMISSION: make_cycles_bounces_test_shot('transmission_bounces'),
+    Shot.TRANSPARENCY: make_cycles_bounces_test_shot('transparent_max_bounces'),
+    Shot.VOLUME: make_cycles_bounces_test_shot('volume_bounces'),
+    Shot.CLAMP_INDIRECT: make_cycles_simple_numeric_test_shot('sample_clamp_indirect'),
+    Shot.CAUSTIC_BLUR: make_cycles_simple_numeric_test_shot('blur_glossy'),
+    Shot.CAUSTIC_REFLECTIVE: make_cycles_simple_bool_test_shot('caustics_reflective'),
+    Shot.CAUSTIC_REFRACTIVE: make_cycles_simple_bool_test_shot('caustics_refractive'),
+}
 
 
 class SFR_OT_Render(Operator):
+    shots: List[TestShot] = []
+    stop: bool = False
+    rendering: bool = False
+    _timer: Timer = None
+
     def pre(self, dummy):
         self.rendering = True
 
     def post(self, dummy):
-        self.shots.pop(0)
         self.rendering = False
 
     def cancelled(self, dummy):
@@ -56,6 +152,9 @@ class SFR_OT_Render(Operator):
 
     def execute(self, context):
         scene = context.scene
+        settings: SFR_Settings = scene.sfr_settings
+        status = settings.status # TODO: add property to track process status
+        path = settings.inputdir
 
         self.stop = False
         self.rendering = False
@@ -63,20 +162,44 @@ class SFR_OT_Render(Operator):
         status.is_rendering = True
         status.should_stop = False
 
+        # Construct each TestShot instance and give it access to the scene
+        self.shots = list(test_shots[shot](scene) for shot in (
+            Shot.DIFFUSE,
+            Shot.GLOSSY,
+            Shot.TRANSMISSION,
+            Shot.GLOSSY,
+            Shot.TRANSMISSION,
+            Shot.TRANSPARENCY,
+            Shot.VOLUME,
+            Shot.CLAMP_INDIRECT,
+            Shot.CAUSTIC_BLUR,
+            Shot.CAUSTIC_REFLECTIVE,
+            Shot.CAUSTIC_REFRACTIVE,
+        ))
+
         # Setup callbacks
         bpy.app.handlers.render_pre.append(self.render_pre)
         bpy.app.handlers.render_post.append(self.render_post)
         bpy.app.handlers.render_cancel.append(self.render_cancel)
 
+        # Kick off the first iteration
+        render_frame(scene, path, 0)
+
         # Setup timer and modal
         self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
         context.window_manager.modal_handler_add(self)
 
-    def modal(self, context, event,path,iteration,settings):
-        if event.type == 'TIMER': 
+    def modal(self, context, event):
+        scene = context.scene
+        settings: SFR_Settings = scene.sfr_settings
+        status = settings.status
+        path = settings.inputdir
+
+        if event.type == 'TIMER':
+            was_cancelled = self.stop or status.should_stop
 
             # If cancelled or no more shots to render, finish.
-            if True in (not self.shots, self.stop is True): 
+            if was_cancelled or not self.shots:
 
                 # We remove the handlers and the modal timer to clean everything
                 bpy.app.handlers.render_pre.remove(self.pre)
@@ -84,37 +207,73 @@ class SFR_OT_Render(Operator):
                 bpy.app.handlers.render_cancel.remove(self.cancelled)
                 context.window_manager.event_timer_remove(self._timer)
 
+                if was_cancelled:
+                    self.report({'WARNING'}, "Benchmark aborted")
+                    return {'CANCELLED'}
+
+                self.report({'INFO'}, "Benchmark complete")
                 return {"FINISHED"}
 
             elif self.rendering is False: 
-                        
-                context = bpy.context
-                scene = context.scene
-                
-                scene.render.resolution_percentage = settings.resolution
 
-                render_frame(path, iteration)
-                if iteration > 0:
-                    compare(path,iteration,settings)
-                    return True
+                done_iteration = self.iteration
+                next_iteration = done_iteration + 1
+
+                shot: TestShot = self.shots[0]
+
+                finish_shot = False
+                if done_iteration > 0:
+                    if compare(path, done_iteration, settings):
+                        # there was no additional benefit from this setting change; roll it back.
+                        shot.back()
+                        # move onto next shot
+                        finish_shot = True
+
+                if not finish_shot:
+                    # increment settings for next render
+                    increment_setting_success = shot.next()
+
+                    if not increment_setting_success:
+                        # cannot increment setting anymore
+                        # keep this setting, and move onto next shot
+                        finish_shot = True
+
+                if finish_shot:
+                    self.shots.pop(0)
+                    next_iteration = 0
+
+                self.iteration = next_iteration
+
+                # set off next render
+                if self.shots:
+                    render_frame(scene, path, next_iteration)
 
 
         return {"PASS_THROUGH"}
 
-def render_frame(path, iteration):
-    # render first render
-    scene.render.filepath = path + str(iteration) + ".png"
+
+def get_filename(path: str, iteration: int) -> str:
+    file_path = bpy.path.abspath(path)
+    file_name = f"{str(iteration)}.png"
+    return os.path.realpath(os.path.join(file_path, file_name))
+
+
+def render_frame(scene, path, iteration):
+    settings: SFR_Settings = scene.sfr_settings
+
+    scene.render.filepath = get_filename(path, iteration)
+    scene.render.resolution_percentage = settings.resolution
     bpy.ops.render.render("INVOKE_DEFAULT", write_still = True)
 
 
-def compare(path,iteration,settings):
-        #Load first image
-    BaseImage = io.imread(path + str(iteration - 1) + ".png")[:, :, :-1]
+def compare(path, iteration, settings):
+    #Load first image
+    BaseImage = io.imread(get_filename(path, iteration - 1))[:, :, :-1]
     #get first image data
     BI_Color = BaseImage.mean(axis=0).mean(axis=0)
 
     #Load second image
-    SecondImage = io.imread(path + str(iteration) + ".png")[:, :, :-1]
+    SecondImage = io.imread(get_filename(path, iteration))[:, :, :-1]
     #get second image data
     SI_Color = SecondImage.mean(axis=0).mean(axis=0)
 
