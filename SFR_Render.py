@@ -102,11 +102,11 @@ def make_cycles_bounces_test_shot(key: str):
     CyclesTestShot = make_cycles_simple_numeric_test_shot(key)
     class CyclesBouncesTestShot(CyclesTestShot):
         def ensure_total_bounces(self) -> None:
+            # Transparent bounces are not needed here because they are handled separately
             self.scene.cycles.max_bounces = max(
                 self.scene.cycles.diffuse_bounces,
                 self.scene.cycles.glossy_bounces,
                 self.scene.cycles.transmission_bounces,
-                self.scene.cycles.transparent_max_bounces,
                 self.scene.cycles.volume_bounces,
             )
 
@@ -126,7 +126,7 @@ test_shots: Dict[Shot, Type[TestShot]] = {
     Shot.DIFFUSE: make_cycles_bounces_test_shot('diffuse_bounces'),
     Shot.GLOSSY: make_cycles_bounces_test_shot('glossy_bounces'),
     Shot.TRANSMISSION: make_cycles_bounces_test_shot('transmission_bounces'),
-    Shot.TRANSPARENCY: make_cycles_bounces_test_shot('transparent_max_bounces'),
+    Shot.TRANSPARENCY: make_cycles_simple_numeric_test_shot('transparent_max_bounces'),
     Shot.VOLUME: make_cycles_bounces_test_shot('volume_bounces'),
     Shot.CLAMP_INDIRECT: make_cycles_simple_numeric_test_shot('sample_clamp_indirect'),
     Shot.CAUSTIC_BLUR: make_cycles_simple_numeric_test_shot('blur_glossy'),
