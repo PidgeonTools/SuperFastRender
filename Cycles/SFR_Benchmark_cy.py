@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import bpy
 
 
@@ -15,107 +16,166 @@ class SFR_Benchmark_cy(Operator):
     _timer = None
 
     def execute(self, context):
+=======
+import subprocess
+import os
+from typing import Dict, List, NamedTuple, Type
+import bpy
+from enum import Enum
 
-        #####################
-        ### SET LOW VALUE ###
-        #####################
+from .. import SFR_Settings
 
-        context = bpy.context
+from bpy.types import (
+    Operator,
+    Scene,
+    Timer
+)
+
+subprocess.run([bpy.app.binary_path_python, "-m", "ensurepip"], check=True)
+subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
+
+try:
+    import cv2
+    print("success cv2")
+except ImportError:
+    print("downloading cv2")
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-python"], check=True)
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-contrib-python"], check=True)
+    import cv2
+    print("success cv2")
+    
+try:
+    import numpy as np
+    print("success numpy")
+except ImportError:
+    print("downloading numpy")
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "numpy"], check=True)
+    import numpy as np
+    print("success numpy")
+
+try:
+    from skimage import io
+    print("success skimage")
+except ImportError:
+    print("downloading skimage")
+    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "scikit-image"], check=True)
+    from skimage import io
+    print("success numpy")
+
+
+>>>>>>> Stashed changes
+
+class Shot(str, Enum):
+    DIFFUSE = 'DIFFUSE'
+    GLOSSY = 'GLOSSY'
+    TRANSMISSION = 'TRANSMISSION'
+    TRANSPARENCY = 'TRANSPARENCY'
+    VOLUME = 'VOLUME'
+    CLAMP_INDIRECT = 'CLAMP_INDIRECT'
+    CAUSTIC_BLUR = 'CAUSTIC_BLUR'
+    CAUSTIC_REFLECTIVE = 'CAUSTIC_REFLECTIVE'
+    CAUSTIC_REFRACTIVE = 'CAUSTIC_REFRACTIVE'
+
+class TestShot:
+    scene: Scene
+
+    def __init__(self, scene: Scene) -> None:
+        self.scene = scene
+
+    def next(self) -> bool:
+        ''' `True` if the operation succeeded, or `False` if it could not determine a next value '''
+        return True
+
+    def back(self) -> None:
+        pass
+
+def make_cycles_simple_numeric_test_shot(key: str):
+    ''' Create a simple TestShot that just increments the cycles parameter `key` by 1, each time '''
+    class CyclesNumericTestShot(TestShot):
+        def next(self) -> bool:
+            self.scene.cycles[key] += 1
+            return True
+
+        def back(self) -> None:
+            self.scene.cycles[key] -= 1
+
+    return CyclesNumericTestShot
+
+def make_cycles_simple_bool_test_shot(key: str):
+    ''' Create a simple TestShot that just sets the cycles parameter to `True`, once only '''
+    class CyclesBoolTestShot(TestShot):
+        def next(self) -> bool:
+            # it can't get any truer than already True
+            if self.scene.cycles[key]:
+                return False
+
+            self.scene.cycles[key] = True
+            return True
+
+        def back(self) -> None:
+            self.scene.cycles[key] = False
+
+    return CyclesBoolTestShot
+
+def make_cycles_bounces_test_shot(key: str):
+    ''' Create a TestShot that always guarantees adequate cycles `max_bounces` '''
+    CyclesTestShot = make_cycles_simple_numeric_test_shot(key)
+    class CyclesBouncesTestShot(CyclesTestShot):
+        def ensure_total_bounces(self) -> None:
+            self.scene.cycles.max_bounces = max(
+                self.scene.cycles.diffuse_bounces,
+                self.scene.cycles.glossy_bounces,
+                self.scene.cycles.transmission_bounces,
+                self.scene.cycles.volume_bounces,
+            )
+
+        def next(self) -> bool:
+            result = super().next()
+            self.ensure_total_bounces()
+            return result
+
+        def back(self) -> None:
+            result = super().back()
+            self.ensure_total_bounces()
+            return result
+
+    return CyclesBouncesTestShot
+
+test_shots: Dict[Shot, Type[TestShot]] = {
+    Shot.DIFFUSE: make_cycles_bounces_test_shot('diffuse_bounces'),
+    Shot.GLOSSY: make_cycles_bounces_test_shot('glossy_bounces'),
+    Shot.TRANSMISSION: make_cycles_bounces_test_shot('transmission_bounces'),
+    Shot.TRANSPARENCY: make_cycles_bounces_test_shot('transparent_max_bounces'),
+    Shot.VOLUME: make_cycles_bounces_test_shot('volume_bounces'),
+    Shot.CLAMP_INDIRECT: make_cycles_simple_numeric_test_shot('sample_clamp_indirect'),
+    Shot.CAUSTIC_BLUR: make_cycles_simple_numeric_test_shot('blur_glossy'),
+    Shot.CAUSTIC_REFLECTIVE: make_cycles_simple_bool_test_shot('caustics_reflective'),
+    Shot.CAUSTIC_REFRACTIVE: make_cycles_simple_bool_test_shot('caustics_refractive'),
+}
+
+
+class SFR_OT_Render(Operator):
+    shots: List[TestShot] = []
+    stop: bool = False
+    rendering: bool = False
+    _timer: Timer = None
+
+    def pre(self, dummy):
+        self.rendering = True
+
+    def post(self, dummy):
+        self.rendering = False
+
+    def cancelled(self, dummy):
+        self.stop = True
+
+    def execute(self, context):
         scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
-
-        #return {'FINISHED'}
-        prefs = bpy.context.preferences.addons['cycles'].preferences
-
-        for device_type in prefs.get_device_types(bpy.context):
-            prefs.get_devices_for_type(device_type[0])
-
-        if prefs.get_devices_for_type == 'OPTIX':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
-        elif prefs.get_devices_for_type == 'CUDA':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
-        elif prefs.get_devices_for_type == 'OPENCL':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
-        elif prefs.get_devices_for_type == 'CPU':
-            scene.render.tile_x = 32
-            scene.render.tile_y = 32
-            
-        scene.cycles.debug_use_spatial_splits = True
-        scene.cycles.debug_use_hair_bvh = True
-        scene.render.use_persistent_data = True
-        scene.render.use_save_buffers = True
-
-        #set adaptive samples
-        scene.cycles.use_adaptive_sampling = True
-        scene.cycles.adaptive_threshold = 0.01
-        scene.cycles.adaptive_min_samples = 8
-
-        #set max bounces
-        scene.cycles.max_bounces = 64                #done
-        scene.cycles.diffuse_bounces = 0             #done
-        scene.cycles.glossy_bounces = 0              #done
-        scene.cycles.transparent_max_bounces = 0     #done
-        scene.cycles.transmission_bounces = 0        #done
-        scene.cycles.volume_bounces = 0              #done
-
-        #set clamps to reduce fireflies
-        scene.cycles.sample_clamp_direct = 0
-        scene.cycles.sample_clamp_indirect = 1      #done
-        
-        #set caustic settings
-        scene.cycles.caustics_reflective = False    #done
-        scene.cycles.caustics_refractive = False    #done
-        scene.cycles.blur_glossy = 10
-
-        #change volume settings
-        scene.cycles.volume_step_rate = 5
-        scene.cycles.volume_preview_step_rate = 5
-        scene.cycles.volume_max_steps = 256
-        
-        #simplfy the scene
-        scene.render.use_simplify = True
-        #viewport
-        scene.render.simplify_subdivision = 2
-        scene.render.simplify_child_particles = 0.2
-        scene.cycles.texture_limit = '2048'
-        scene.cycles.ao_bounces = 2
-        #render
-        scene.render.simplify_subdivision_render = 4
-        scene.render.simplify_child_particles_render = 1
-        scene.cycles.texture_limit_render = '4096'
-        scene.cycles.ao_bounces_render = 4
-        #culling
-        scene.cycles.use_camera_cull = True
-        scene.cycles.use_distance_cull = True
-        scene.cycles.camera_cull_margin = 0.1
-        scene.cycles.distance_cull_margin = 50
-
-        self.report({'INFO'}, "Lowest Values set, finished benchmark")
-
-
-        ##################
-        ### INITIALIZE ###
-        ##################
-        
-        ### old settings ###
-        oldCompositing = scene.render.use_compositing
-        oldSequencer = scene.render.use_sequencer
-        oldResX = scene.render.resolution_x
-        oldResY = scene.render.resolution_y
-        oldPercent = scene.render.resolution_percentage
-
-        scene.render.use_compositing = False
-        scene.render.use_sequencer = False
-
-        ### set settings ###
-        scene.render.image_settings.file_format = 'PNG'
-        scene.render.image_settings.color_mode = 'RGBA'
-
+        status = settings.status # TODO: add property to track process status
         path = settings.inputdir
 
+<<<<<<< Updated upstream
         iteration = 0
         repeat = SFR_OT_Render()
         repeat = self.TestRender(path, iteration, settings)
@@ -288,3 +348,146 @@ class SFR_Benchmark_cy(Operator):
 
 
         return {'FINISHED'}
+=======
+        self.stop = False
+        self.rendering = False
+
+        status.is_rendering = True
+        status.should_stop = False
+
+        # Construct each TestShot instance and give it access to the scene
+        self.shots = list(test_shots[shot](scene) for shot in (
+            Shot.DIFFUSE,
+            Shot.GLOSSY,
+            Shot.TRANSMISSION,
+            Shot.GLOSSY,
+            Shot.TRANSMISSION,
+            Shot.TRANSPARENCY,
+            Shot.VOLUME,
+            Shot.CLAMP_INDIRECT,
+            Shot.CAUSTIC_BLUR,
+            Shot.CAUSTIC_REFLECTIVE,
+            Shot.CAUSTIC_REFRACTIVE,
+        ))
+
+        # Setup callbacks
+        bpy.app.handlers.render_pre.append(self.render_pre)
+        bpy.app.handlers.render_post.append(self.render_post)
+        bpy.app.handlers.render_cancel.append(self.render_cancel)
+
+        # Kick off the first iteration
+        render_frame(scene, path, 0)
+
+        # Setup timer and modal
+        self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
+        context.window_manager.modal_handler_add(self)
+
+    def modal(self, context, event):
+        scene = context.scene
+        settings: SFR_Settings = scene.sfr_settings
+        status = settings.status
+        path = settings.inputdir
+
+        if event.type == 'TIMER':
+            was_cancelled = self.stop or status.should_stop
+
+            # If cancelled or no more shots to render, finish.
+            if was_cancelled or not self.shots:
+
+                # We remove the handlers and the modal timer to clean everything
+                bpy.app.handlers.render_pre.remove(self.pre)
+                bpy.app.handlers.render_post.remove(self.post)
+                bpy.app.handlers.render_cancel.remove(self.cancelled)
+                context.window_manager.event_timer_remove(self._timer)
+
+                if was_cancelled:
+                    self.report({'WARNING'}, "Benchmark aborted")
+                    return {'CANCELLED'}
+
+                self.report({'INFO'}, "Benchmark complete")
+                return {"FINISHED"}
+
+            elif self.rendering is False: 
+
+                done_iteration = self.iteration
+                next_iteration = done_iteration + 1
+
+                shot: TestShot = self.shots[0]
+
+                finish_shot = False
+                if done_iteration > 0:
+                    if compare(path, done_iteration, settings):
+                        # there was no additional benefit from this setting change; roll it back.
+                        shot.back()
+                        # move onto next shot
+                        finish_shot = True
+
+                if not finish_shot:
+                    # increment settings for next render
+                    increment_setting_success = shot.next()
+
+                    if not increment_setting_success:
+                        # cannot increment setting anymore
+                        # keep this setting, and move onto next shot
+                        finish_shot = True
+
+                if finish_shot:
+                    self.shots.pop(0)
+                    next_iteration = 0
+
+                self.iteration = next_iteration
+
+                # set off next render
+                if self.shots:
+                    render_frame(scene, path, next_iteration)
+
+
+        return {"PASS_THROUGH"}
+
+
+def get_filename(path: str, iteration: int) -> str:
+    file_path = bpy.path.abspath(path)
+    file_name = f"{str(iteration)}.png"
+    return os.path.realpath(os.path.join(file_path, file_name))
+
+
+def render_frame(scene, path, iteration):
+    settings: SFR_Settings = scene.sfr_settings
+
+    scene.render.filepath = get_filename(path, iteration)
+    scene.render.resolution_percentage = settings.resolution
+    bpy.ops.render.render("INVOKE_DEFAULT", write_still = True)
+
+
+def compare(path, iteration, settings):
+    #Load first image
+    BaseImage = io.imread(get_filename(path, iteration - 1))[:, :, :-1]
+    #get first image data
+    BI_Color = BaseImage.mean(axis=0).mean(axis=0)
+
+    #Load second image
+    SecondImage = io.imread(get_filename(path, iteration))[:, :, :-1]
+    #get second image data
+    SI_Color = SecondImage.mean(axis=0).mean(axis=0)
+
+    ChangeThreshold = (settings.threshold/100)
+    print(BI_Color)
+    print(SI_Color)
+    #get average
+    BI_Brightness = BI_Color[0] + BI_Color[1] + BI_Color[2]
+    SI_Brightness = SI_Color[0] + SI_Color[1] + SI_Color[2]
+    #get brightness
+    TI_Brightness = (SI_Brightness/BI_Brightness) - 1
+
+
+    print(TI_Brightness)
+    print("Threshold: ", settings.threshold, "%")
+
+    if (SI_Brightness >= BI_Brightness) and (TI_Brightness >= ChangeThreshold):
+        print("Finished Compare")
+        return True
+
+    else:
+        print("Aborted Compare")
+        return False
+>>>>>>> Stashed changes

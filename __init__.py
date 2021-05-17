@@ -12,14 +12,18 @@ bl_info = {
 
 import bpy
 from .SFR_Panel import SFR_PT_Panel
+from .SFR_Settings import SFR_Settings
 from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
 from .Cycles.SFR_High_cy import SFR_High_cy
 from .Cycles.SFR_Super_cy import SFR_Super_cy
 from .Cycles.SFR_Auto_cy import SFR_Auto_cy
-from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
 from .SRF_Complimentary import SFR_Complimentary
+<<<<<<< Updated upstream
 from .SFR_Settings import SFR_Settings
 from .SFR_Render import SFR_OT_Render
+=======
+#from .SFR_Render import SFR_RenderFrame
+>>>>>>> Stashed changes
 from bpy.props import (
     PointerProperty,
 )
@@ -84,17 +88,19 @@ class DemoPreferences(bpy.types.AddonPreferences):
         # col.scale_y = 2
         # col.operator("wm.url_open","Open webpage ").url=addon_updater_ops.updater.website
 
-
 classes = (
     SFR_Beauty_cy,
     SFR_High_cy,
     SFR_Super_cy,
     SFR_Auto_cy,
-    SFR_Benchmark_cy,
     SFR_Complimentary,
     SFR_PT_Panel,
     SFR_Settings,
+<<<<<<< Updated upstream
     SFR_OT_Render,
+=======
+#    SFR_RenderFrame,
+>>>>>>> Stashed changes
     DemoPreferences
 )
 
@@ -112,12 +118,14 @@ def register():
     bpy.types.Scene.sfr_settings = PointerProperty(type=SFR_Settings, options=set())
 
 def unregister():
+    del bpy.types.Scene.sfr_settings
     # addon updater unregister
     addon_updater_ops.unregister()
     
-    del bpy.types.Scene.sfr_settings
 
     # register the example panel, to show updater buttons
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
+if __name__ == "__main__":
+    register()

@@ -1,14 +1,21 @@
 import subprocess
 import os
+<<<<<<< Updated upstream
 from typing import Dict, List, NamedTuple, Type
 import bpy
 from enum import Enum
+=======
+import bpy
+>>>>>>> Stashed changes
 
 from . import SFR_Settings
 
 from bpy.types import (
     Operator,
+<<<<<<< Updated upstream
     Scene,
+=======
+>>>>>>> Stashed changes
     Timer
 )
 
@@ -45,6 +52,7 @@ except ImportError:
 
 
 
+<<<<<<< Updated upstream
 class Shot(str, Enum):
     DIFFUSE = 'DIFFUSE'
     GLOSSY = 'GLOSSY'
@@ -137,6 +145,11 @@ test_shots: Dict[Shot, Type[TestShot]] = {
 
 class SFR_OT_Render(Operator):
     shots: List[TestShot] = []
+=======
+
+
+class SFR_RenderFrame():
+>>>>>>> Stashed changes
     stop: bool = False
     rendering: bool = False
     _timer: Timer = None
@@ -162,6 +175,7 @@ class SFR_OT_Render(Operator):
         status.is_rendering = True
         status.should_stop = False
 
+<<<<<<< Updated upstream
         # Construct each TestShot instance and give it access to the scene
         self.shots = list(test_shots[shot](scene) for shot in (
             Shot.DIFFUSE,
@@ -177,12 +191,17 @@ class SFR_OT_Render(Operator):
             Shot.CAUSTIC_REFRACTIVE,
         ))
 
+=======
+>>>>>>> Stashed changes
         # Setup callbacks
         bpy.app.handlers.render_pre.append(self.render_pre)
         bpy.app.handlers.render_post.append(self.render_post)
         bpy.app.handlers.render_cancel.append(self.render_cancel)
 
+<<<<<<< Updated upstream
         # Kick off the first iteration
+=======
+>>>>>>> Stashed changes
         render_frame(scene, path, 0)
 
         # Setup timer and modal
@@ -219,6 +238,7 @@ class SFR_OT_Render(Operator):
                 done_iteration = self.iteration
                 next_iteration = done_iteration + 1
 
+<<<<<<< Updated upstream
                 shot: TestShot = self.shots[0]
 
                 finish_shot = False
@@ -241,6 +261,13 @@ class SFR_OT_Render(Operator):
                 if finish_shot:
                     self.shots.pop(0)
                     next_iteration = 0
+=======
+                if done_iteration > 0:
+                    if compare(path, done_iteration, settings):
+                        # reset; move onto next shot
+                        self.shots.pop()
+                        next_iteration = 0
+>>>>>>> Stashed changes
 
                 self.iteration = next_iteration
 
@@ -251,6 +278,7 @@ class SFR_OT_Render(Operator):
 
         return {"PASS_THROUGH"}
 
+<<<<<<< Updated upstream
 
 def get_filename(path: str, iteration: int) -> str:
     file_path = bpy.path.abspath(path)
@@ -262,18 +290,35 @@ def render_frame(scene, path, iteration):
     settings: SFR_Settings = scene.sfr_settings
 
     scene.render.filepath = get_filename(path, iteration)
+=======
+def render_frame(scene, path, iteration):
+    settings: SFR_Settings = scene.sfr_settings
+
+    # render first render
+    scene.render.filepath = path + str(iteration) + ".png"
+>>>>>>> Stashed changes
     scene.render.resolution_percentage = settings.resolution
     bpy.ops.render.render("INVOKE_DEFAULT", write_still = True)
 
 
+<<<<<<< Updated upstream
 def compare(path, iteration, settings):
     #Load first image
     BaseImage = io.imread(get_filename(path, iteration - 1))[:, :, :-1]
+=======
+def compare(path,iteration,settings):
+        #Load first image
+    BaseImage = io.imread(path + str(iteration - 1) + ".png")[:, :, :-1]
+>>>>>>> Stashed changes
     #get first image data
     BI_Color = BaseImage.mean(axis=0).mean(axis=0)
 
     #Load second image
+<<<<<<< Updated upstream
     SecondImage = io.imread(get_filename(path, iteration))[:, :, :-1]
+=======
+    SecondImage = io.imread(path + str(iteration) + ".png")[:, :, :-1]
+>>>>>>> Stashed changes
     #get second image data
     SI_Color = SecondImage.mean(axis=0).mean(axis=0)
 
