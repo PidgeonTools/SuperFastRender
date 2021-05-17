@@ -19,6 +19,7 @@ from .Cycles.SFR_Auto_cy import SFR_Auto_cy
 from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
 from .SRF_Complimentary import SFR_Complimentary
 from .SFR_Settings import SFR_Settings
+from .SFR_Render import SFR_OT_Render
 from bpy.props import (
     PointerProperty,
 )
@@ -93,6 +94,7 @@ classes = (
     SFR_Complimentary,
     SFR_PT_Panel,
     SFR_Settings,
+    SFR_OT_Render,
     DemoPreferences
 )
 
