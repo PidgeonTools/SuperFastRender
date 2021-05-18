@@ -1,25 +1,6 @@
-<<<<<<< Updated upstream
-import bpy
-
-
-from bpy.types import (
-    Operator
-)
-from .. import SFR_Settings
-from ..SFR_Render import SFR_OT_Render
-
-class SFR_Benchmark_cy(Operator):
-    bl_idname = "render.superfastrender_benchmark"
-    bl_label = "BENCHMARK"
-    bl_description = "Tests your scene to detect the best optimization settings."
-    
-    _timer = None
-
-    def execute(self, context):
-=======
 import subprocess
 import os
-from typing import Dict, List, NamedTuple, Type
+from typing import Dict, List, Type
 import bpy
 from enum import Enum
 
@@ -63,7 +44,6 @@ except ImportError:
     print("success numpy")
 
 
->>>>>>> Stashed changes
 
 class Shot(str, Enum):
     DIFFUSE = 'DIFFUSE'
@@ -122,6 +102,7 @@ def make_cycles_bounces_test_shot(key: str):
     CyclesTestShot = make_cycles_simple_numeric_test_shot(key)
     class CyclesBouncesTestShot(CyclesTestShot):
         def ensure_total_bounces(self) -> None:
+            # Transparent bounces are not needed here because they are handled separately
             self.scene.cycles.max_bounces = max(
                 self.scene.cycles.diffuse_bounces,
                 self.scene.cycles.glossy_bounces,
@@ -145,7 +126,7 @@ test_shots: Dict[Shot, Type[TestShot]] = {
     Shot.DIFFUSE: make_cycles_bounces_test_shot('diffuse_bounces'),
     Shot.GLOSSY: make_cycles_bounces_test_shot('glossy_bounces'),
     Shot.TRANSMISSION: make_cycles_bounces_test_shot('transmission_bounces'),
-    Shot.TRANSPARENCY: make_cycles_bounces_test_shot('transparent_max_bounces'),
+    Shot.TRANSPARENCY: make_cycles_simple_numeric_test_shot('transparent_max_bounces'),
     Shot.VOLUME: make_cycles_bounces_test_shot('volume_bounces'),
     Shot.CLAMP_INDIRECT: make_cycles_simple_numeric_test_shot('sample_clamp_indirect'),
     Shot.CAUSTIC_BLUR: make_cycles_simple_numeric_test_shot('blur_glossy'),
@@ -175,180 +156,6 @@ class SFR_OT_Render(Operator):
         status = settings.status # TODO: add property to track process status
         path = settings.inputdir
 
-<<<<<<< Updated upstream
-        iteration = 0
-        repeat = SFR_OT_Render()
-        repeat = self.TestRender(path, iteration, settings)
-
-        ### DIFFUSE ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.diffuse_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.diffuse_bounces -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### GLOSS1 ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.glossy_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.glossy_bounces -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### TRANSMISSION2 ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.transmission_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.transmission_bounces -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### GLOSS2 ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.glossy_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.glossy_bounces -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### TRANSMISSION1 ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.transmission_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.transmission_bounces -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### TRANSPARENT ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.transparent_max_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.transparent_max_bounces -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### VOLUME ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.volume_bounces += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.volume_bounces -= 1
-
-        ### TOTAL ###
-        scene.cycles.max_bounces = max(scene.cycles.diffuse_bounces, scene.cycles.glossy_bounces, scene.cycles.transmission_bounces, scene.cycles.volume_bounces)
-
-        iteration = 0
-        repeat = True
-
-        ### INDIRECT ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.sample_clamp_indirect += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.sample_clamp_indirect -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### CAUSTIC BLUR ###
-        while repeat:
-            #start first render
-            self.TestRender(path, iteration,settings)
-            #set settings
-            scene.cycles.blur_glossy += 1
-            #set next
-            iteration += 1
-            print("Iteration: ", iteration)
-            #start second render
-            repeat = self.TestRender(path, iteration,settings)
-        scene.cycles.blur_glossy -= 1
-
-        iteration = 0
-        repeat = True
-
-        ### CAUSTIC REFL ###
-        #start first render
-        self.TestRender(path, iteration,settings)
-        #set settings
-        scene.cycles.caustics_reflective = True
-        #start second render
-        scene.cycles.caustics_reflective = self.TestRender(path, iteration,settings)
-
-        iteration = 0
-        repeat = True
-
-        ### CAUSTIC REFR ###
-        #start first render
-        self.TestRender(path, iteration,settings)
-        #set settings
-        scene.cycles.caustics_refractive = True
-        #start second render
-        scene.cycles.caustics_refractive = self.TestRender(path, iteration,settings)
-
-
-        return {'FINISHED'}
-=======
         self.stop = False
         self.rendering = False
 
@@ -490,4 +297,3 @@ def compare(path, iteration, settings):
     else:
         print("Aborted Compare")
         return False
->>>>>>> Stashed changes

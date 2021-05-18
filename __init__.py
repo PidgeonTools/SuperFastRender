@@ -17,13 +17,8 @@ from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
 from .Cycles.SFR_High_cy import SFR_High_cy
 from .Cycles.SFR_Super_cy import SFR_Super_cy
 from .Cycles.SFR_Auto_cy import SFR_Auto_cy
+from .Cycles.SFR_Benchmark_cy import SFR_OT_Render
 from .SRF_Complimentary import SFR_Complimentary
-<<<<<<< Updated upstream
-from .SFR_Settings import SFR_Settings
-from .SFR_Render import SFR_OT_Render
-=======
-#from .SFR_Render import SFR_RenderFrame
->>>>>>> Stashed changes
 from bpy.props import (
     PointerProperty,
 )
@@ -96,11 +91,7 @@ classes = (
     SFR_Complimentary,
     SFR_PT_Panel,
     SFR_Settings,
-<<<<<<< Updated upstream
     SFR_OT_Render,
-=======
-#    SFR_RenderFrame,
->>>>>>> Stashed changes
     DemoPreferences
 )
 
