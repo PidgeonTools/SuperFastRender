@@ -12,36 +12,11 @@ from bpy.types import (
     Timer
 )
 
-subprocess.run([bpy.app.binary_path_python, "-m", "ensurepip"], check=True)
-subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
-
-try:
-    import cv2
-    print("success cv2")
-except ImportError:
-    print("downloading cv2")
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-python"], check=True)
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-contrib-python"], check=True)
-    import cv2
-    print("success cv2")
-    
-try:
-    import numpy as np
-    print("success numpy")
-except ImportError:
-    print("downloading numpy")
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "numpy"], check=True)
-    import numpy as np
-    print("success numpy")
-
 try:
     from skimage import io
-    print("success skimage")
 except ImportError:
-    print("downloading skimage")
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "scikit-image"], check=True)
-    from skimage import io
-    print("success numpy")
+    print("Error loading scikit-image. Please go to the addon preferences and click Install Dependencies.")
+    io = None
 
 
 
@@ -136,6 +111,11 @@ test_shots: Dict[Shot, Type[TestShot]] = {
 
 
 class SFR_OT_Render(Operator):
+    bl_idname = "render.superfastrender_benchmark"
+    bl_label = "BENCHMARK"
+    bl_description = "Tests your scene to detect the best optimization settings."
+
+
     shots: List[TestShot] = []
     stop: bool = False
     rendering: bool = False
@@ -151,6 +131,10 @@ class SFR_OT_Render(Operator):
         self.stop = True
 
     def execute(self, context):
+        if not io:
+            self.report({'ERROR'}, "Please install dependencies from addon preferences!")
+            return {'CANCELLED'}
+
         scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
         status = settings.status # TODO: add property to track process status
@@ -212,7 +196,7 @@ class SFR_OT_Render(Operator):
                     return {'CANCELLED'}
 
                 self.report({'INFO'}, "Benchmark complete")
-                return {"FINISHED"}
+                return {'FINISHED'}
 
             elif self.rendering is False: 
 
