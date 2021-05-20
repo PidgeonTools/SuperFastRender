@@ -19,6 +19,7 @@ from .Cycles.SFR_Auto_cy import SFR_Auto_cy
 from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
 from .SRF_Complimentary import SFR_Complimentary
 from .SFR_Settings import SFR_Settings
+from .install_deps import dependencies, SFR_OT_CheckDependencies, SFR_OT_InstallDependencies
 from bpy.props import (
     PointerProperty,
 )
@@ -64,13 +65,22 @@ class DemoPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        # col = layout.column() # works best if a column, or even just self.layout
-        mainrow = layout.row()
-        col = mainrow.column()
+
+        col = layout.column()
+
+        if not dependencies.checked or dependencies.error:
+            col.operator("initialise.sfr_check_dependencies")
+        elif dependencies.needs_install:
+            col.operator("initialise.sfr_install_dependencies")
+        else:
+            col.label(text="Dependencies installed!")
+        col.separator()
+
+        col = layout.column() # works best if a column, or even just self.layout
 
         # updater draw function
         # could also pass in col as third arg
-        addon_updater_ops.update_settings_ui(self, context)
+        addon_updater_ops.update_settings_ui(self, context, col)
 
         # Alternate draw function, which is more condensed and can be
         # placed within an existing draw function. Only contains:
@@ -93,6 +103,8 @@ classes = (
     SFR_Complimentary,
     SFR_PT_Panel,
     SFR_Settings,
+    SFR_OT_CheckDependencies,
+    SFR_OT_InstallDependencies,
     DemoPreferences
 )
 

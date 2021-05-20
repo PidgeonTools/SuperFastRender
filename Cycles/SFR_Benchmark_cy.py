@@ -2,36 +2,11 @@ import bpy
 import subprocess
 import os
 
-subprocess.run([bpy.app.binary_path_python, "-m", "ensurepip"], check=True)
-subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
-
-try:
-    import cv2
-    print("success cv2")
-except ImportError:
-    print("downloading cv2")
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-python"], check=True)
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "opencv-contrib-python"], check=True)
-    import cv2
-    print("success cv2")
-    
-try:
-    import numpy as np
-    print("success numpy")
-except ImportError:
-    print("downloading numpy")
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "numpy"], check=True)
-    import numpy as np
-    print("success numpy")
-
 try:
     from skimage import io
-    print("success skimage")
 except ImportError:
-    print("downloading skimage")
-    subprocess.run([bpy.app.binary_path_python, "-m", "pip", "install", "--upgrade", "scikit-image"], check=True)
-    from skimage import io
-    print("success numpy")
+    print("Error loading scikit-image. Please go to the addon preferences and click Install Dependencies.")
+    io = None
 
 from bpy.types import (
     Operator
@@ -44,6 +19,9 @@ class SFR_Benchmark_cy(Operator):
     bl_description = "Tests your scene to detect the best optimization settings."
     
     def execute(self, context):
+        if not io:
+            self.report({'ERROR'}, "Please install dependencies from addon preferences!")
+            return {'CANCELLED'}
 
         #####################
         ### SET LOW VALUE ###
