@@ -57,8 +57,8 @@ class SFR_Benchmark_cy(Operator):
 
         #set adaptive samples
         scene.cycles.use_adaptive_sampling = True
-        scene.cycles.adaptive_threshold = 0.01
-        scene.cycles.adaptive_min_samples = 8
+        scene.cycles.adaptive_threshold = 0.0015
+        scene.cycles.adaptive_min_samples = 64
 
         #set max bounces
         scene.cycles.max_bounces = 64                #done
@@ -67,6 +67,8 @@ class SFR_Benchmark_cy(Operator):
         scene.cycles.transparent_max_bounces = 0     #done
         scene.cycles.transmission_bounces = 0        #done
         scene.cycles.volume_bounces = 0              #done
+        scene.cycles.light_sampling_threshold = 0.1
+
 
         #set clamps to reduce fireflies
         scene.cycles.sample_clamp_direct = 0
@@ -236,7 +238,7 @@ class SFR_Benchmark_cy(Operator):
         scene.cycles.volume_bounces -= 1
 
         ### TOTAL ###
-        scene.cycles.max_bounces = max(scene.cycles.diffuse_bounces, scene.cycles.glossy_bounces, scene.cycles.transmission_bounces, scene.cycles.volume_bounces)
+        scene.cycles.max_bounces = scene.cycles.diffuse_bounces + scene.cycles.glossy_bounces + scene.cycles.transmission_bounces + scene.cycles.volume_bounces
 
         iteration = 0
         repeat = True
