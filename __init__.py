@@ -1,3 +1,21 @@
+import bpy
+from bpy.props import (
+    PointerProperty,
+    BoolProperty,
+    IntProperty
+)
+from .install_deps import dependencies, SFR_OT_CheckDependencies, SFR_OT_InstallDependencies
+from .SFR_Settings import SFR_Settings
+from .SRF_Complimentary import SFR_Complimentary
+from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
+from .Cycles.SFR_Auto_cy import SFR_Auto_cy
+from .Cycles.SFR_Super_cy import SFR_Super_cy
+from .Cycles.SFR_High_cy import SFR_High_cy
+from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
+from .SFR_Panel import SFR_PT_Panel
+
+from . import addon_updater_ops
+
 bl_info = {
     "name": "Super Fast Render (SFR)",
     "author": "Kevin Lorengel",
@@ -10,58 +28,44 @@ bl_info = {
     "category": "Render",
 }
 
-import bpy
-from .SFR_Panel import SFR_PT_Panel
-from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
-from .Cycles.SFR_High_cy import SFR_High_cy
-from .Cycles.SFR_Super_cy import SFR_Super_cy
-from .Cycles.SFR_Auto_cy import SFR_Auto_cy
-from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
-from .SRF_Complimentary import SFR_Complimentary
-from .SFR_Settings import SFR_Settings
-from .install_deps import dependencies, SFR_OT_CheckDependencies, SFR_OT_InstallDependencies
-from bpy.props import (
-    PointerProperty,
-)
-from . import addon_updater_ops
 
-class DemoPreferences(bpy.types.AddonPreferences):
+class SIDPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
     # addon updater preferences
 
-    auto_check_update = bpy.props.BoolProperty(
+    auto_check_update: BoolProperty(
         name="Auto-check for Update",
         description="If enabled, auto-check for updates using an interval",
         default=True,
-        )
-    updater_intrval_months = bpy.props.IntProperty(
+    )
+    updater_intrval_months: IntProperty(
         name='Months',
         description="Number of months between checking for updates",
         default=0,
         min=0
-        )
-    updater_intrval_days = bpy.props.IntProperty(
+    )
+    updater_intrval_days: IntProperty(
         name='Days',
         description="Number of days between checking for updates",
         default=7,
         min=0,
         max=31
-        )
-    updater_intrval_hours = bpy.props.IntProperty(
+    )
+    updater_intrval_hours: IntProperty(
         name='Hours',
         description="Number of hours between checking for updates",
         default=0,
         min=0,
         max=23
-        )
-    updater_intrval_minutes = bpy.props.IntProperty(
+    )
+    updater_intrval_minutes: IntProperty(
         name='Minutes',
         description="Number of minutes between checking for updates",
         default=0,
         min=0,
         max=59
-        )
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -76,7 +80,7 @@ class DemoPreferences(bpy.types.AddonPreferences):
             col.label(text="Dependencies installed!")
         col.separator()
 
-        col = layout.column() # works best if a column, or even just self.layout
+        col = layout.column()  # works best if a column, or even just self.layout
 
         # updater draw function
         # could also pass in col as third arg
@@ -105,8 +109,9 @@ classes = (
     SFR_Settings,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
-    DemoPreferences
+    SIDPreferences
 )
+
 
 def register():
     # addon updater code and configurations
@@ -116,18 +121,20 @@ def register():
 
     # register the example panel, to show updater buttons
     for cls in classes:
-        addon_updater_ops.make_annotations(cls) # to avoid blender 2.8 warnings
+        addon_updater_ops.make_annotations(
+            cls)  # to avoid blender 2.8 warnings
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.sfr_settings = PointerProperty(type=SFR_Settings, options=set())
+    bpy.types.Scene.sfr_settings = PointerProperty(
+        type=SFR_Settings, options=set())
+
 
 def unregister():
     # addon updater unregister
     addon_updater_ops.unregister()
-    
+
     del bpy.types.Scene.sfr_settings
 
     # register the example panel, to show updater buttons
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-

@@ -14,7 +14,7 @@ class Dependencies_check_singleton(object):
         self._needs_numpy = False
         self._needs_skimage = False
 
-    ### Properties
+    # Properties
 
     @property
     def checked(self):
@@ -48,8 +48,7 @@ class Dependencies_check_singleton(object):
     def needs_skimage(self):
         return self._needs_skimage
 
-
-    ### Methods
+    # Methods
 
     def check_dependencies(self):
         self._checked = False
@@ -86,17 +85,18 @@ class Dependencies_check_singleton(object):
 
         self._checked = True
 
-
     def install_dependencies(self):
         self._error = False
         self._success = False
 
         # Update pip
-        path_to_python = sys.executable if bpy.app.version > (2, 90) else bpy.app.binary_path_python
+        path_to_python = sys.executable if bpy.app.version > (
+            2, 90) else bpy.app.binary_path_python
         try:
             print("Updating pip...")
             subprocess.run([path_to_python, "-m", "ensurepip"], check=True)
-            subprocess.run([path_to_python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
+            subprocess.run([path_to_python, "-m", "pip",
+                            "install", "--upgrade", "pip"], check=True)
             print("Successfully updated pip.")
         except subprocess.CalledProcessError as e:
             self._error = True
@@ -108,8 +108,10 @@ class Dependencies_check_singleton(object):
         if self.needs_cv2:
             try:
                 print("Installing cv2...")
-                subprocess.run([path_to_python, "-m", "pip", "install", "--upgrade", "opencv-python"], check=True)
-                subprocess.run([path_to_python, "-m", "pip", "install", "--upgrade", "opencv-contrib-python"], check=True)
+                subprocess.run([path_to_python, "-m", "pip", "install",
+                                "--upgrade", "opencv-python"], check=True)
+                subprocess.run([path_to_python, "-m", "pip", "install",
+                                "--upgrade", "opencv-contrib-python"], check=True)
                 import cv2
                 self._needs_cv2 = False
             except (subprocess.CalledProcessError, ImportError) as e:
@@ -120,7 +122,8 @@ class Dependencies_check_singleton(object):
         if self.needs_numpy:
             try:
                 print("Installing numpy...")
-                subprocess.run([path_to_python, "-m", "pip", "install", "--upgrade", "numpy"], check=True)
+                subprocess.run([path_to_python, "-m", "pip",
+                                "install", "--upgrade", "numpy"], check=True)
                 import numpy
                 self._needs_numpy = False
             except (subprocess.CalledProcessError, ImportError) as e:
@@ -131,7 +134,8 @@ class Dependencies_check_singleton(object):
         if self.needs_skimage:
             try:
                 print("Installing scikit-image...")
-                subprocess.run([path_to_python, "-m", "pip", "install", "--upgrade", "scikit-image"], check=True)
+                subprocess.run([path_to_python, "-m", "pip", "install",
+                                "--upgrade", "scikit-image"], check=True)
                 from skimage import io
                 self._needs_skimage = False
             except (subprocess.CalledProcessError, ImportError) as e:
@@ -156,7 +160,6 @@ class SFR_OT_CheckDependencies(Operator):
         dependencies.check_dependencies()
 
         return {'FINISHED'}
-
 
 
 class SFR_OT_InstallDependencies(Operator):

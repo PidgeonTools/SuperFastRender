@@ -4,6 +4,7 @@ from bpy.types import (
 )
 from .SFR_Settings import SFR_Settings
 
+
 class SFR_PT_Panel(Panel):
     bl_label = "Super Fast Render"
     bl_space_type = 'PROPERTIES'
@@ -14,8 +15,7 @@ class SFR_PT_Panel(Panel):
     def draw_header(self, context):
         layout = self.layout
         layout.label(text="", icon='SHADERFX')
-        
-        
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -34,31 +34,29 @@ class SFR_PT_Panel(Panel):
             settings,
             "detection_method",
             text="Optimization Method"
-            )
+        )
         if settings.detection_method == 'MANUAL':
             detection_method.label(
                 text="Sets a general optimization settings.",
                 icon='INFO'
-                )
+            )
             detection_method.label(
                 text="       General optimization, usually requires manual tweaking."
-                )
+            )
         elif settings.detection_method == 'AUTOMATIC':
             detection_method.label(
                 text="Benchmarks your scene and detects which settings you roughly need.",
                 icon='INFO'
-                )
+            )
             detection_method.label(
                 text="       EXPERIMENTAL."
-                )
+            )
         layout.separator()
-        
-        
-        
+
         layout = self.layout
 
         if settings.detection_method == 'MANUAL':
-            
+
             layout.label(text="SUPER preset:")
             row = layout.row()
             row.operator("render.superfastrender_s")
@@ -70,7 +68,7 @@ class SFR_PT_Panel(Panel):
             layout.label(text="Beauty preset:")
             row = layout.row()
             row.operator("render.superfastrender_b")
-        
+
         else:
             col = layout.column(align=True)
             col.prop(settings, "resolution", text="Benchmark Res", slider=True)
@@ -84,7 +82,7 @@ class SFR_PT_Panel(Panel):
 
             fileio.prop(settings, "inputdir", text="Benchmarking Files")
             fileio.separator()
-            
+
         layout.separator()
         col = layout.column()
         op = col.operator("wm.url_open", text="Support", icon="URL")
