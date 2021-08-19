@@ -27,7 +27,7 @@ class SFR_Settings(PropertyGroup):
                 'Automatic Scene Optimizer'
             ),
         ),
-        default='MANUAL',
+        default='AUTOMATIC',
         description="Choose the optimization method, manual for basic setups, automatic for more precise settings",
         options=set(),  # Not animatable!
     )

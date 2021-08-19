@@ -24,64 +24,69 @@ class SFR_PT_Panel(Panel):
         view_layer = context.view_layer
         cycles_view_layer = view_layer.cycles
 
-        layout.label(text="Check Complimentary Addons", icon='ERROR')
-        row = layout.row()
-        row.operator("initalise.complimentary")
+        if RenderEngine == "CYCLES":
 
-        detection_method = layout.column(align=True)
-
-        detection_method.prop(
-            settings,
-            "detection_method",
-            text="Optimization Method"
-        )
-        if settings.detection_method == 'MANUAL':
-            detection_method.label(
-                text="Sets a general optimization settings.",
-                icon='INFO'
-            )
-            detection_method.label(
-                text="       General optimization, usually requires manual tweaking."
-            )
-        elif settings.detection_method == 'AUTOMATIC':
-            detection_method.label(
-                text="Benchmarks your scene and detects which settings you roughly need.",
-                icon='INFO'
-            )
-            detection_method.label(
-                text="       EXPERIMENTAL."
-            )
-        layout.separator()
-
-        layout = self.layout
-
-        if settings.detection_method == 'MANUAL':
-
-            layout.label(text="SUPER preset:")
+            layout.label(text="Check Complimentary Addons", icon='ERROR')
             row = layout.row()
-            row.operator("render.superfastrender_s")
+            row.operator("initalise.complimentary")
 
-            layout.label(text="High preset:")
-            row = layout.row()
-            row.operator("render.superfastrender_h")
+            detection_method = layout.column(align=True)
 
-            layout.label(text="Beauty preset:")
-            row = layout.row()
-            row.operator("render.superfastrender_b")
+            detection_method.prop(
+                settings,
+                "detection_method",
+                text="Optimization Method"
+            )
+            if settings.detection_method == 'MANUAL':
+                detection_method.label(
+                    text="Sets a general optimization settings.",
+                    icon='INFO'
+                )
+                detection_method.label(
+                    text="       General optimization, usually requires manual tweaking."
+                )
+            elif settings.detection_method == 'AUTOMATIC':
+                detection_method.label(
+                    text="Benchmarks your scene and detects which settings you roughly need.",
+                    icon='INFO'
+                )
+                detection_method.label(
+                    text="       EXPERIMENTAL."
+                )
+            layout.separator()
+
+            layout = self.layout
+
+            if settings.detection_method == 'MANUAL':
+
+                layout.label(text="SUPER preset:")
+                row = layout.row()
+                row.operator("render.superfastrender_s")
+
+                layout.label(text="High preset:")
+                row = layout.row()
+                row.operator("render.superfastrender_h")
+
+                layout.label(text="Beauty preset:")
+                row = layout.row()
+                row.operator("render.superfastrender_b")
+
+            else:
+                col = layout.column(align=True)
+                col.prop(settings, "resolution", text="Benchmark Res", slider=True)
+                col.prop(settings, "threshold", text="Threshold %", slider=True)
+
+                layout.label(text="Start Benchmark")
+                row = layout.row()
+                row.operator("render.superfastrender_benchmark")
+
+                fileio = layout.column(align=True)
+
+                fileio.prop(settings, "inputdir", text="Benchmarking Files")
+                fileio.separator()
 
         else:
-            col = layout.column(align=True)
-            col.prop(settings, "resolution", text="Benchmark Res", slider=True)
-            col.prop(settings, "threshold", text="Threshold %", slider=True)
-
-            layout.label(text="Start Benchmark")
-            row = layout.row()
-            row.operator("render.superfastrender_benchmark")
-
-            fileio = layout.column(align=True)
-
-            fileio.prop(settings, "inputdir", text="Benchmarking Files")
-            fileio.separator()
+            layout.label(text="This Render Engine is not supported", icon='ERROR')
 
         layout.separator()
         col = layout.column()

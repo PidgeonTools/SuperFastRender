@@ -1,12 +1,6 @@
 import bpy
-import subprocess
-import os
 
-try:
-    from skimage import io
-except ImportError:
-    print("Error loading scikit-image. Please go to the addon preferences and click Install Dependencies.")
-    io = None
+from ..Utils.SFR_TestRender import TestRender
 
 from bpy.types import (
     Operator
@@ -20,10 +14,6 @@ class SFR_Benchmark_cy(Operator):
     bl_description = "Tests your scene to detect the best optimization settings."
 
     def execute(self, context):
-        if not io:
-            self.report(
-                {'ERROR'}, "Please install dependencies from addon preferences!")
-            return {'CANCELLED'}
 
         #####################
         ### SET LOW VALUE ###
@@ -40,14 +30,14 @@ class SFR_Benchmark_cy(Operator):
             prefs.get_devices_for_type(device_type[0])
 
         if prefs.get_devices_for_type == 'OPTIX':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
+            scene.render.tile_x = 512
+            scene.render.tile_y = 512
         elif prefs.get_devices_for_type == 'CUDA':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
+            scene.render.tile_x = 256
+            scene.render.tile_y = 256
         elif prefs.get_devices_for_type == 'OPENCL':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
+            scene.render.tile_x = 256
+            scene.render.tile_y = 256
         elif prefs.get_devices_for_type == 'CPU':
             scene.render.tile_x = 32
             scene.render.tile_y = 32
@@ -59,7 +49,8 @@ class SFR_Benchmark_cy(Operator):
 
         # set adaptive samples
         scene.cycles.use_adaptive_sampling = True
-        scene.cycles.adaptive_threshold = 0.0015
+        scene.cycles.samples = 50000
+        scene.cycles.adaptive_threshold = 0.01
         scene.cycles.adaptive_min_samples = 64
 
         # set max bounces
@@ -103,8 +94,6 @@ class SFR_Benchmark_cy(Operator):
         scene.cycles.camera_cull_margin = 0.1
         scene.cycles.distance_cull_margin = 50
 
-        self.report({'INFO'}, "Lowest Values set, finished benchmark")
-
         ##################
         ### INITIALIZE ###
         ##################
@@ -126,19 +115,19 @@ class SFR_Benchmark_cy(Operator):
         path = settings.inputdir
 
         iteration = 0
-        repeat = self.TestRender(path, iteration, settings)
+        repeat = TestRender(path, iteration, settings)
 
         ### DIFFUSE ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.diffuse_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.diffuse_bounces -= 1
 
         iteration = 0
@@ -147,14 +136,14 @@ class SFR_Benchmark_cy(Operator):
         ### GLOSS1 ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.glossy_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.glossy_bounces -= 1
 
         iteration = 0
@@ -163,14 +152,14 @@ class SFR_Benchmark_cy(Operator):
         ### TRANSMISSION2 ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.transmission_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.transmission_bounces -= 1
 
         iteration = 0
@@ -179,14 +168,14 @@ class SFR_Benchmark_cy(Operator):
         ### GLOSS2 ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.glossy_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.glossy_bounces -= 1
 
         iteration = 0
@@ -195,14 +184,14 @@ class SFR_Benchmark_cy(Operator):
         ### TRANSMISSION1 ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.transmission_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.transmission_bounces -= 1
 
         iteration = 0
@@ -211,14 +200,14 @@ class SFR_Benchmark_cy(Operator):
         ### TRANSPARENT ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.transparent_max_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.transparent_max_bounces -= 1
 
         iteration = 0
@@ -227,14 +216,14 @@ class SFR_Benchmark_cy(Operator):
         ### VOLUME ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.volume_bounces += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.volume_bounces -= 1
 
         ### TOTAL ###
@@ -247,14 +236,14 @@ class SFR_Benchmark_cy(Operator):
         ### INDIRECT ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.sample_clamp_indirect += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.sample_clamp_indirect -= 1
 
         iteration = 0
@@ -263,14 +252,14 @@ class SFR_Benchmark_cy(Operator):
         ### CAUSTIC BLUR ###
         while repeat:
             # start first render
-            self.TestRender(path, iteration, settings)
+            TestRender(path, iteration, settings)
             # set settings
             scene.cycles.blur_glossy += 1
             # set next
             iteration += 1
             print("Iteration: ", iteration)
             # start second render
-            repeat = self.TestRender(path, iteration, settings)
+            repeat = TestRender(path, iteration, settings)
         scene.cycles.blur_glossy -= 1
 
         iteration = 0
@@ -278,11 +267,11 @@ class SFR_Benchmark_cy(Operator):
 
         ### CAUSTIC REFL ###
         # start first render
-        self.TestRender(path, iteration, settings)
+        TestRender(path, iteration, settings)
         # set settings
         scene.cycles.caustics_reflective = True
         # start second render
-        scene.cycles.caustics_reflective = self.TestRender(
+        scene.cycles.caustics_reflective = TestRender(
             path, iteration, settings)
 
         iteration = 0
@@ -290,59 +279,21 @@ class SFR_Benchmark_cy(Operator):
 
         ### CAUSTIC REFR ###
         # start first render
-        self.TestRender(path, iteration, settings)
+        TestRender(path, iteration, settings)
         # set settings
         scene.cycles.caustics_refractive = True
         # start second render
-        scene.cycles.caustics_refractive = self.TestRender(
+        scene.cycles.caustics_refractive = TestRender(
             path, iteration, settings)
 
+
+        ### get old settings ###
+        scene.render.use_compositing = oldCompositing
+        scene.render.use_sequencer = oldSequencer
+        scene.render.resolution_x = oldResX
+        scene.render.resolution_y = oldResY
+        scene.render.resolution_percentage = oldPercent
+
+        self.report({'INFO'}, "Benchmark complete")
+
         return {'FINISHED'}
-
-    def TestRender(self, path, iteration, settings: SFR_Settings):
-        context = bpy.context
-        scene = context.scene
-
-        scene.render.resolution_percentage = settings.resolution
-
-        if iteration == 0:
-            # render first render
-            scene.render.filepath = path + str(iteration) + ".png"
-            bpy.ops.render.render(write_still=True)
-            return True
-
-        else:
-            # render second render
-            scene.render.filepath = path + str(iteration) + ".png"
-            bpy.ops.render.render(write_still=True)
-
-            # Load first image
-            BaseImage = io.imread(
-                path + str(iteration - 1) + ".png")[:, :, :-1]
-            # get first image data
-            BI_Color = BaseImage.mean(axis=0).mean(axis=0)
-
-            # Load second image
-            SecondImage = io.imread(path + str(iteration) + ".png")[:, :, :-1]
-            # get second image data
-            SI_Color = SecondImage.mean(axis=0).mean(axis=0)
-
-            ChangeThreshold = (settings.threshold/100)
-            print(BI_Color)
-            print(SI_Color)
-            # get average
-            BI_Brightness = BI_Color[0] + BI_Color[1] + BI_Color[2]
-            SI_Brightness = SI_Color[0] + SI_Color[1] + SI_Color[2]
-            # get brightness
-            TI_Brightness = (SI_Brightness/BI_Brightness) - 1
-
-            print(TI_Brightness)
-            print("Threshold: ", settings.threshold, "%")
-
-            if (SI_Brightness >= BI_Brightness) and (TI_Brightness >= ChangeThreshold):
-                print("Finished Compare")
-                return True
-
-            else:
-                print("Aborted Compare")
-                return False

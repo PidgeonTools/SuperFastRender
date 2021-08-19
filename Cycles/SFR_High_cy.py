@@ -39,7 +39,7 @@ class SFR_High_cy(Operator):
         bpy.context.scene.cycles.adaptive_min_samples = 64
 
         # set max bounces
-        bpy.context.scene.cycles.max_bounces = 8
+        bpy.context.scene.cycles.max_bounces = 16
         bpy.context.scene.cycles.diffuse_bounces = 2
         bpy.context.scene.cycles.glossy_bounces = 4
         bpy.context.scene.cycles.transparent_max_bounces = 8

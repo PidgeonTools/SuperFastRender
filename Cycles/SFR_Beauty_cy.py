@@ -35,25 +35,25 @@ class SFR_Beauty_cy(Operator):
 
         # set adaptive samples
         bpy.context.scene.cycles.use_adaptive_sampling = True
-        bpy.context.scene.cycles.adaptive_threshold = 0.001
+        bpy.context.scene.cycles.adaptive_threshold = 0.005
         bpy.context.scene.cycles.adaptive_min_samples = 64
 
         # set max bounces
-        bpy.context.scene.cycles.max_bounces = 24
-        bpy.context.scene.cycles.diffuse_bounces = 24
-        bpy.context.scene.cycles.glossy_bounces = 24
-        bpy.context.scene.cycles.transparent_max_bounces = 24
-        bpy.context.scene.cycles.transmission_bounces = 24
-        bpy.context.scene.cycles.volume_bounces = 2
+        bpy.context.scene.cycles.max_bounces = 1024
+        bpy.context.scene.cycles.diffuse_bounces = 1024
+        bpy.context.scene.cycles.glossy_bounces = 1024
+        bpy.context.scene.cycles.transparent_max_bounces = 1024
+        bpy.context.scene.cycles.transmission_bounces = 1024
+        bpy.context.scene.cycles.volume_bounces = 1024
 
         # set clamps to reduce fireflies
         bpy.context.scene.cycles.sample_clamp_direct = 0
-        bpy.context.scene.cycles.sample_clamp_indirect = 50
+        bpy.context.scene.cycles.sample_clamp_indirect = 0
 
         # set caustic settings
-        bpy.context.scene.cycles.caustics_reflective = False
-        bpy.context.scene.cycles.caustics_refractive = False
-        bpy.context.scene.cycles.blur_glossy = 0.1
+        bpy.context.scene.cycles.caustics_reflective = True
+        bpy.context.scene.cycles.caustics_refractive = True
+        bpy.context.scene.cycles.blur_glossy = 0
 
         # change volume settings
         bpy.context.scene.cycles.volume_step_rate = 1

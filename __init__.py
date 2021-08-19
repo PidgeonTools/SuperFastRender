@@ -8,7 +8,6 @@ from .install_deps import dependencies, SFR_OT_CheckDependencies, SFR_OT_Install
 from .SFR_Settings import SFR_Settings
 from .SRF_Complimentary import SFR_Complimentary
 from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
-from .Cycles.SFR_Auto_cy import SFR_Auto_cy
 from .Cycles.SFR_Super_cy import SFR_Super_cy
 from .Cycles.SFR_High_cy import SFR_High_cy
 from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
@@ -19,7 +18,7 @@ from . import addon_updater_ops
 bl_info = {
     "name": "Super Fast Render (SFR)",
     "author": "Kevin Lorengel",
-    "version": (1, 0, 1),
+    "version": (1, 1, 0),
     "blender": (2, 92, 0),
     "location": "Properties > Render > Super Fast Render",
     "description": "SFR optimizes your scene, so you render faster!",
@@ -102,7 +101,6 @@ classes = (
     SFR_Beauty_cy,
     SFR_High_cy,
     SFR_Super_cy,
-    SFR_Auto_cy,
     SFR_Benchmark_cy,
     SFR_Complimentary,
     SFR_PT_Panel,
