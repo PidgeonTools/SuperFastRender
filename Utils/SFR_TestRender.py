@@ -5,18 +5,9 @@ import os
 
 from .. import SFR_Settings
 
-try:
-    from skimage import io
-except ImportError:
-    print("Error loading scikit-image. Please go to the addon preferences and click Install Dependencies.")
-    io = None
+from skimage import io
 
 def TestRender(path, iteration, settings: SFR_Settings):
-
-    if not io:
-        self.report(
-            {'ERROR'}, "Please install dependencies from addon preferences!")
-        return {'CANCELLED'}
 
     context = bpy.context
     scene = context.scene

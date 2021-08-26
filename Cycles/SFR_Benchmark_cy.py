@@ -7,6 +7,12 @@ from bpy.types import (
 )
 from .. import SFR_Settings
 
+try:
+    from skimage import io
+except ImportError:
+    print("Error loading scikit-image. Please go to the addon preferences and click Install Dependencies.")
+    io = None
+
 
 class SFR_Benchmark_cy(Operator):
     bl_idname = "render.superfastrender_benchmark"
@@ -15,6 +21,11 @@ class SFR_Benchmark_cy(Operator):
 
     def execute(self, context):
 
+        if not io:
+            self.report(
+                {'ERROR'}, "Please install dependencies from addon preferences!")
+            return {'CANCELLED'}
+            
         #####################
         ### SET LOW VALUE ###
         #####################
