@@ -117,6 +117,7 @@ class Dependencies_check_singleton(object):
             except (subprocess.CalledProcessError, ImportError) as e:
                 self._error = True
                 print("Error installing cv2!", e.__str__())
+                return
 
         # Install numpy
         if self.needs_numpy:
@@ -129,6 +130,7 @@ class Dependencies_check_singleton(object):
             except (subprocess.CalledProcessError, ImportError) as e:
                 self._error = True
                 print("Error installing numpy!", e.__str__())
+                return
 
         # Install scikit-image
         if self.needs_skimage:
@@ -141,6 +143,7 @@ class Dependencies_check_singleton(object):
             except (subprocess.CalledProcessError, ImportError) as e:
                 self._error = True
                 print("Error installing scikit-image!", e.__str__())
+                return
 
         self._success = True
 
@@ -151,6 +154,7 @@ dependencies = Dependencies_check_singleton()
 class SFR_OT_CheckDependencies(Operator):
     bl_idname = "initialise.sfr_check_dependencies"
     bl_label = "Check Dependencies"
+    bl_description = "Checks for the Python dependencies required by the addon"
 
     @classmethod
     def poll(cls, context):
@@ -165,15 +169,31 @@ class SFR_OT_CheckDependencies(Operator):
 class SFR_OT_InstallDependencies(Operator):
     bl_idname = "initialise.sfr_install_dependencies"
     bl_label = "Install Dependencies"
+    bl_description = "Install the Python dependencies required by the addon"
 
     @classmethod
     def poll(cls, context):
-        return dependencies.checked and dependencies.needs_install
+        if not dependencies.checked:
+            dependencies.check_dependencies()
+
+        return dependencies.needs_install
 
     def execute(self, context):
         dependencies.install_dependencies()
 
         if dependencies.error:
             return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+class SFR_OT_OpenAddonPrefs(Operator):
+    bl_idname = "initialise.sfr_open_addon_prefs"
+    bl_label = "Open Addon Prefs"
+    bl_description = "Open the addon preferences"
+
+    def execute(self, context):
+        bpy.context.preferences.active_section = 'ADDONS'
+        bpy.context.window_manager.addon_search = "Super Fast Render"
+        bpy.ops.screen.userpref_show()
 
         return {'FINISHED'}

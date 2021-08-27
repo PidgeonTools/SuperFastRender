@@ -4,7 +4,12 @@ from bpy.props import (
     BoolProperty,
     IntProperty
 )
-from .install_deps import dependencies, SFR_OT_CheckDependencies, SFR_OT_InstallDependencies
+from .install_deps import (
+    dependencies,
+    SFR_OT_CheckDependencies,
+    SFR_OT_InstallDependencies,
+    SFR_OT_OpenAddonPrefs,
+)
 from .SFR_Settings import SFR_Settings
 from .SRF_Complimentary import SFR_Complimentary
 from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
@@ -17,8 +22,8 @@ from . import addon_updater_ops
 
 bl_info = {
     "name": "Super Fast Render (SFR)",
-    "author": "Kevin Lorengel",
-    "version": (1, 1, 0),
+    "author": "Kevin Lorengel, Chris Bond (Kamikaze)",
+    "version": (1, 1, 1),
     "blender": (2, 92, 0),
     "location": "Properties > Render > Super Fast Render",
     "description": "SFR optimizes your scene, so you render faster!",
@@ -69,11 +74,25 @@ class SIDPreferences(bpy.types.AddonPreferences):
     def draw(self, context):
         layout = self.layout
 
-        col = layout.column()
+        col = layout.column(align=True)
 
-        if not dependencies.checked or dependencies.error:
-            col.operator("initialise.sfr_check_dependencies")
-        elif dependencies.needs_install:
+        if not dependencies.checked or dependencies.needs_install:
+            if dependencies.error:
+                col.label(text="Installing dependencies failed.")
+                col.label(text="Check Blender's System Console or your terminal for errors.")
+                col.separator()
+
+            col.label(text="Blender must either:")
+            col.label(
+                text="    * be run as an Administrator, or")
+            col.label(
+                text="    * you must have write permissions to Blender's " \
+                    "installed location.")
+            col = layout.column(align=True)
+            col.label(
+                text="Installation may take a few minutes, and Blender will " \
+                    "stop responding during this time.")
+
             col.operator("initialise.sfr_install_dependencies")
         else:
             col.label(text="Dependencies installed!")
@@ -107,6 +126,7 @@ classes = (
     SFR_Settings,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
+    SFR_OT_OpenAddonPrefs,
     SIDPreferences
 )
 

@@ -3,6 +3,7 @@ from bpy.types import (
     Panel,
 )
 from .SFR_Settings import SFR_Settings
+from .install_deps import dependencies
 
 
 class SFR_PT_Panel(Panel):
@@ -21,8 +22,25 @@ class SFR_PT_Panel(Panel):
         scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
         RenderEngine = scene.render.engine
-        view_layer = context.view_layer
-        cycles_view_layer = view_layer.cycles
+
+        # Tell user they need to install dependencies
+        if not dependencies.checked:
+            dependencies.check_dependencies()
+
+        if dependencies.needs_install:
+            col = layout.column(align=True)
+            col.label(
+                text="Install dependencies",
+                icon='ERROR'
+            )
+            col.label(
+                text="       Open addon preferences and install dependencies first."
+            )
+            col.operator("initialise.sfr_open_addon_prefs", icon='PREFERENCES')
+
+            self.draw_support(layout)
+
+            return
 
         if RenderEngine == "CYCLES":
 
@@ -88,6 +106,9 @@ class SFR_PT_Panel(Panel):
         else:
             layout.label(text="This Render Engine is not supported", icon='ERROR')
 
+        self.draw_support(layout)
+
+    def draw_support(self, layout):
         layout.separator()
         col = layout.column()
         op = col.operator("wm.url_open", text="Support", icon="URL")
