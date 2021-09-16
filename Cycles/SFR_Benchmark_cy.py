@@ -64,28 +64,17 @@ class SFR_Benchmark_cy(Operator):
 
         # set max bounces
         cycles.max_bounces = 512
-        #if settings.use_diffuse:
         cycles.diffuse_bounces = 0
-        #if settings.use_glossy:
         cycles.glossy_bounces = 0
-        #if settings.use_transparent:
         cycles.transparent_max_bounces = 0
-        #if settings.use_transmission:
         cycles.transmission_bounces = 0
-        #if settings.use_volume:
         cycles.volume_bounces = 0
         cycles.light_sampling_threshold = 0.01
-
-        # set clamps to reduce fireflies
         cycles.sample_clamp_direct = 0
         cycles.sample_clamp_indirect = 10
-
-        # set caustic settings
         cycles.caustics_reflective = False
         cycles.caustics_refractive = False
         cycles.blur_glossy = 10
-
-        # change volume settings
         cycles.volume_step_rate = 5
         cycles.volume_preview_step_rate = 5
         cycles.volume_max_steps = 256
@@ -129,20 +118,23 @@ class SFR_Benchmark_cy(Operator):
         path = settings.inputdir
 
         iteration = 0
-        repeat = TestRender(path, iteration, settings)
+        repeat = True
 
         ### DIFFUSE ###
         while repeat and settings.use_diffuse:
             # start first render
             TestRender(path, iteration, settings)
             # set settings
+            print("Diffuse Bounces Pre: ", cycles.diffuse_bounces)
             cycles.diffuse_bounces += 1
             # set next
             iteration += 1
             print("Diffuse Iteration: ", iteration)
             # start second render
             repeat = TestRender(path, iteration, settings)
+            print("Diffuse Bounces Post: ", cycles.diffuse_bounces)
         cycles.diffuse_bounces -= 1
+        print("Diffuse Bounces Final: ", cycles.diffuse_bounces)
 
         iteration = 0
         repeat = True
@@ -159,7 +151,6 @@ class SFR_Benchmark_cy(Operator):
             print("Glossy Iteration: ", iteration)
             # start second render
             repeat = TestRender(path, iteration, settings)
-            print("###########################################################################################", settings.use_glossy, repeat)
         cycles.glossy_bounces -= 1
 
         iteration = 0
@@ -284,8 +275,7 @@ class SFR_Benchmark_cy(Operator):
             # set settings
             cycles.caustics_reflective = True
             # start second render
-            cycles.caustics_reflective = TestRender(
-                path, iteration, settings)
+            cycles.caustics_reflective = TestRender(path, iteration, settings)
 
             iteration = 0
             repeat = True
@@ -296,9 +286,10 @@ class SFR_Benchmark_cy(Operator):
             # set settings
             cycles.caustics_refractive = True
             # start second render
-            cycles.caustics_refractive = TestRender(
-                path, iteration, settings)
+            cycles.caustics_refractive = TestRender(path, iteration, settings)
 
+            iteration = 0
+            repeat = True
 
         ### get old settings ###
         scene.render.use_compositing = oldCompositing
@@ -315,3 +306,5 @@ class SFR_Benchmark_cy(Operator):
         self.report({'INFO'}, "Benchmark complete")
 
         return {'FINISHED'}
+
+        #return {'PASS_THROUGH'}

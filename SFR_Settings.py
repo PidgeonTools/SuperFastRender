@@ -36,7 +36,7 @@ class SFR_Settings(PropertyGroup):
         name="Threshold",
         default=0.1,
         max=1,
-        min=0.001,
+        min=0.01,
         description="Threshold on which the next benchmark method should set in",
         options=set(),  # Not animatable!
     )
