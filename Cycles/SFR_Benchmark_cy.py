@@ -6,12 +6,7 @@ from bpy.types import (
     Operator
 )
 from .. import SFR_Settings
-
-try:
-    from skimage import io
-except ImportError:
-    print("Error loading scikit-image. Please go to the addon preferences and click Install Dependencies.")
-    io = None
+from ..install_deps import dependencies
 
 
 class SFR_Benchmark_cy(Operator):
@@ -19,13 +14,15 @@ class SFR_Benchmark_cy(Operator):
     bl_label = "Frame Benchmark"
     bl_description = "Tests your scene to detect the best optimization settings."
 
+    @classmethod
+    def poll(cls, context):
+        if not dependencies.checked or dependencies.needs_install:
+            dependencies.check_dependencies()
+
+        return not dependencies.needs_install
+
     def execute(self, context):
 
-        if not io:
-            self.report(
-                {'ERROR'}, "Please install dependencies from addon preferences!")
-            return {'CANCELLED'}
-            
         #####################
         ### SET LOW VALUE ###
         #####################

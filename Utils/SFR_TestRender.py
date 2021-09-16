@@ -1,13 +1,10 @@
 import bpy
 
-import subprocess
-import os
-
 from .. import SFR_Settings
 
-from skimage import io
-
 def TestRender(path, iteration, settings: SFR_Settings):
+
+    from skimage import io
 
     context = bpy.context
     scene = context.scene
