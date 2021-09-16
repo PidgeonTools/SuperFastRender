@@ -8,6 +8,7 @@ from .install_deps import dependencies, SFR_OT_CheckDependencies, SFR_OT_Install
 from .SFR_Settings import SFR_Settings
 from .SRF_Complimentary import SFR_Complimentary
 from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
+from .Utils.SFR_AnimationBenchmark import SFR_AnimationBenchmark
 from .Cycles.SFR_Super_cy import SFR_Super_cy
 from .Cycles.SFR_High_cy import SFR_High_cy
 from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
@@ -107,7 +108,8 @@ classes = (
     SFR_Settings,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
-    SIDPreferences
+    SIDPreferences,
+    SFR_AnimationBenchmark
 )
 
 

@@ -50,9 +50,6 @@ class SFR_PT_Panel(Panel):
                     text="Benchmarks your scene and detects which settings you roughly need.",
                     icon='INFO'
                 )
-                detection_method.label(
-                    text="       EXPERIMENTAL."
-                )
             layout.separator()
 
             layout = self.layout
@@ -72,13 +69,31 @@ class SFR_PT_Panel(Panel):
                 row.operator("render.superfastrender_b")
 
             else:
+                layout.label(text="Benchmark Settings")
                 col = layout.column(align=True)
                 col.prop(settings, "resolution", text="Benchmark Res", slider=True)
                 col.prop(settings, "threshold", text="Threshold %", slider=True)
+                col.separator()
+                col.prop(settings, "frame_skipped", text="Frame Offset", slider=True)
+                col.separator()
+
+                layout.label(text="Benchmark Passes")
+                col = layout.column(align=True)
+                col.prop(settings, "use_diffuse", text="Diffuse",toggle=True)
+                col.prop(settings, "use_glossy", text="Glossy",toggle=True)
+                col.prop(settings, "use_transparent", text="Transparency",toggle=True)
+                col.prop(settings, "use_transmission", text="Transmission",toggle=True)
+                col.prop(settings, "use_volume", text="Volume",toggle=True)
+
+                layout.label(text="Benchmark Light Behaviour")
+                col = layout.column(align=True)
+                col.prop(settings, "use_indirect", text="Indirect Brightness",toggle=True)
+                col.prop(settings, "use_caustics", text="Caustic Blur",toggle=True)
 
                 layout.label(text="Start Benchmark")
                 row = layout.row()
                 row.operator("render.superfastrender_benchmark")
+                row.operator("render.superfastrender_animbench")
 
                 fileio = layout.column(align=True)
 
