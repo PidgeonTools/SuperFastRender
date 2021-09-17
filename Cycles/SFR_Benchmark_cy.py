@@ -120,6 +120,15 @@ class SFR_Benchmark_cy(Operator):
         iteration = 0
         repeat = True
 
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
+        print("SET 0 ")
         ### DIFFUSE ###
         while repeat and settings.use_diffuse:
             # start first render
@@ -141,7 +150,6 @@ class SFR_Benchmark_cy(Operator):
 
         ### GLOSS1 ###
         while repeat and settings.use_glossy:
-            
             # start first render
             TestRender(path, iteration, settings)
             # set settings
