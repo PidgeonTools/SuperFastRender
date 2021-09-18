@@ -2,9 +2,7 @@ import bpy
 
 from ..Utils.SFR_TestRender import TestRender
 
-from bpy.types import (
-    Operator
-)
+from bpy.types import Context, Operator
 from .. import SFR_Settings
 from ..install_deps import dependencies
 
@@ -21,21 +19,20 @@ class SFR_Benchmark_cy(Operator):
 
         return not dependencies.needs_install
 
-    def execute(self, context):
+    def execute(self, context: Context):
 
         #####################
         ### SET LOW VALUE ###
         #####################
 
-        context = bpy.context
         scene = context.scene
         cycles = scene.cycles
         settings: SFR_Settings = scene.sfr_settings
 
         # return {'FINISHED'}
-        prefs = bpy.context.preferences.addons['cycles'].preferences
+        prefs = context.preferences.addons['cycles'].preferences
 
-        for device_type in prefs.get_device_types(bpy.context):
+        for device_type in prefs.get_device_types(context):
             prefs.get_devices_for_type(device_type[0])
 
         if prefs.get_devices_for_type == 'OPTIX':
@@ -120,15 +117,6 @@ class SFR_Benchmark_cy(Operator):
         iteration = 0
         repeat = True
 
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
-        print("SET 0 ")
         ### DIFFUSE ###
         while repeat and settings.use_diffuse:
             # start first render
@@ -306,13 +294,9 @@ class SFR_Benchmark_cy(Operator):
         scene.render.resolution_y = oldResY
         scene.render.resolution_percentage = oldPercent
 
-        
         ### TOTAL ###
         cycles.max_bounces = cycles.diffuse_bounces + cycles.glossy_bounces + cycles.transmission_bounces + cycles.volume_bounces
-
 
         self.report({'INFO'}, "Benchmark complete")
 
         return {'FINISHED'}
-
-        #return {'PASS_THROUGH'}

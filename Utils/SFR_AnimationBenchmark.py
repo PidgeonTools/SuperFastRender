@@ -1,7 +1,5 @@
 import bpy
-from bpy.types import (
-    Operator
-)
+from bpy.types import Context, Operator
 
 from .. import SFR_Settings
 
@@ -11,14 +9,14 @@ class SFR_AnimationBenchmark(Operator):
     bl_label = "Animation Benchmark"
     bl_description = "Benchmarks for animations"
 
-    def execute(self, context):
+    def execute(self, context: Context):
 
-        scene = bpy.context.scene
+        scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
-        keyframe_insert = bpy.context.window.scene.keyframe_insert
-        frame_current = bpy.context.scene.frame_current
-        frame_start = bpy.context.scene.frame_start
-        frame_end = bpy.context.scene.frame_end
+        keyframe_insert = context.window.scene.keyframe_insert
+        frame_current = scene.frame_current
+        frame_start = scene.frame_start
+        frame_end = scene.frame_end
 
         frame_skipped = settings.frame_skipped
 
@@ -32,14 +30,12 @@ class SFR_AnimationBenchmark(Operator):
         caustic_blur = []
         vol_steps = []
 
-
         if scene.render.engine == 'CYCLES':
-            
-            prefs = bpy.context.preferences.addons['cycles'].preferences
+
             cycles = scene.cycles
 
             for frame_current in range(frame_start, frame_end, frame_skipped):
-                
+
                 scene.frame_current = frame_current
 
                 # start benchmark
@@ -56,7 +52,7 @@ class SFR_AnimationBenchmark(Operator):
                 vol_steps.append(cycles.volume_max_steps)
 
             for frame_current in range(frame_start, frame_end, frame_skipped):
-                
+
                 # key max bounces
                 cycles.max_bounces = max_bounces[0]
                 del max_bounces[0]
@@ -100,6 +96,9 @@ class SFR_AnimationBenchmark(Operator):
                     keyframe_insert('cycles.volume_bounces', frame=frame_current)
                     keyframe_insert('cycles.volume_max_steps', frame=frame_current)
 
-            self.report({'INFO'}, "Animation benchmark complete")
+        else:
+            self.report({'WARNING'}, "Current render engine is not supported")
+            return {'CANCELLED'}
 
-            return {'FINISHED'}
+        self.report({'INFO'}, "Animation benchmark complete")
+        return {'FINISHED'}
