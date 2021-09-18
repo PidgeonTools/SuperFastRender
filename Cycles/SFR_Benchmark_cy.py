@@ -1,10 +1,12 @@
 import bpy
-
-from ..Utils.SFR_TestRender import TestRender
+import itertools as it
 
 from bpy.types import Context, Operator
+
 from .. import SFR_Settings
+from ..Utils.SFR_TestRender import TestRender
 from ..install_deps import dependencies
+from ..Utils.fib import fib
 
 
 class SFR_Benchmark_cy(Operator):
@@ -290,9 +292,12 @@ class SFR_Benchmark_cy(Operator):
             iteration = 0
             repeat = True
             TestRender(path, iteration, settings)
-            while repeat:
+            for x in it.takewhile(lambda _: repeat, fib()):
+                # save best value found so far before rendering next iteration
+                best_val_found = cycles.sample_clamp_indirect
                 # set settings
-                cycles.sample_clamp_indirect += 1
+                cycles.sample_clamp_indirect += x
+                print(f"Indirect Clamp increment {x} to {cycles.sample_clamp_indirect}")
                 if self.insert_keyframes:
                     keyframe_insert('cycles.sample_clamp_indirect')
                 # set next
@@ -300,7 +305,8 @@ class SFR_Benchmark_cy(Operator):
                 print("Indirect Clamp Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
-            cycles.sample_clamp_indirect -= 1
+            print(f"Best value found: {best_val_found}")
+            cycles.sample_clamp_indirect = best_val_found
             if self.insert_keyframes:
                 keyframe_insert('cycles.sample_clamp_indirect')
 
