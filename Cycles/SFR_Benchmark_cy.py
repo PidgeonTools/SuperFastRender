@@ -12,12 +12,19 @@ class SFR_Benchmark_cy(Operator):
     bl_label = "Frame Benchmark"
     bl_description = "Tests your scene to detect the best optimization settings."
 
+    insert_keyframes: bpy.props.BoolProperty(
+        name="Insert keyframes",
+        description="Inserts keyframes for each property to the current frame (used for benchmarking animations)",
+        default=False,
+        options=set(),  # Not animatable!
+    )
+
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: Context):
         if not dependencies.checked or dependencies.needs_install:
             dependencies.check_dependencies()
 
-        return not dependencies.needs_install
+        return context.scene.render.engine == 'CYCLES' and not dependencies.needs_install
 
     def execute(self, context: Context):
 
@@ -28,8 +35,8 @@ class SFR_Benchmark_cy(Operator):
         scene = context.scene
         cycles = scene.cycles
         settings: SFR_Settings = scene.sfr_settings
+        keyframe_insert = scene.keyframe_insert
 
-        # return {'FINISHED'}
         prefs = context.preferences.addons['cycles'].preferences
 
         for device_type in prefs.get_device_types(context):
@@ -75,6 +82,25 @@ class SFR_Benchmark_cy(Operator):
         cycles.volume_step_rate = 5
         cycles.volume_preview_step_rate = 5
         cycles.volume_max_steps = 256
+
+        if self.insert_keyframes:
+            keyframe_insert('cycles.max_bounces')
+            if settings.use_diffuse:
+                keyframe_insert('cycles.diffuse_bounces')
+            if settings.use_glossy:
+                keyframe_insert('cycles.glossy_bounces')
+            if settings.use_transmission:
+                keyframe_insert('cycles.transmission_bounces')
+            if settings.use_transparent:
+                keyframe_insert('cycles.transparent_max_bounces')
+            if settings.use_volume:
+                keyframe_insert('cycles.volume_bounces')
+            if settings.use_indirect:
+                keyframe_insert('cycles.sample_clamp_indirect')
+            if settings.use_caustics:
+                keyframe_insert('cycles.blur_glossy')
+                keyframe_insert('cycles.caustics_reflective')
+                keyframe_insert('cycles.caustics_refractive')
 
         # simplfy the scene
         scene.render.use_simplify = True
@@ -124,6 +150,8 @@ class SFR_Benchmark_cy(Operator):
                 # set settings
                 print("Diffuse Bounces Pre: ", cycles.diffuse_bounces)
                 cycles.diffuse_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.diffuse_bounces')
                 # set next
                 iteration += 1
                 print("Diffuse Iteration: ", iteration)
@@ -131,6 +159,8 @@ class SFR_Benchmark_cy(Operator):
                 repeat = TestRender(path, iteration, settings)
                 print("Diffuse Bounces Post: ", cycles.diffuse_bounces)
             cycles.diffuse_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.diffuse_bounces')
             print("Diffuse Bounces Final: ", cycles.diffuse_bounces)
 
         ### GLOSS1 ###
@@ -142,12 +172,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.glossy_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.glossy_bounces')
                 # set next
                 iteration += 1
                 print("Glossy Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.glossy_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.glossy_bounces')
 
         ### TRANSMISSION1 ###
         if settings.use_transmission:
@@ -158,12 +192,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.transmission_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.transmission_bounces')
                 # set next
                 iteration += 1
                 print("Transmission Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.transmission_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.transmission_bounces')
 
         ### GLOSS2 ###
         if settings.use_transmission and settings.use_glossy:
@@ -174,12 +212,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.glossy_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.glossy_bounces')
                 # set next
                 iteration += 1
                 print("Glossy2 Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.glossy_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.glossy_bounces')
 
         ### TRANSMISSION2 ###
         if settings.use_transmission and settings.use_glossy:
@@ -190,12 +232,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.transmission_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.transmission_bounces')
                 # set next
                 iteration += 1
                 print("Transmission2 Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.transmission_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.transmission_bounces')
 
         ### TRANSPARENT ###
         if settings.use_transparent:
@@ -206,12 +252,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.transparent_max_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.transparent_max_bounces')
                 # set next
                 iteration += 1
                 print("Transparent Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.transparent_max_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.transparent_max_bounces')
 
         ### VOLUME ###
         if settings.use_volume:
@@ -222,12 +272,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.volume_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.volume_bounces')
                 # set next
                 iteration += 1
                 print("Volume Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.volume_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.volume_bounces')
 
         ### INDIRECT ###
         if settings.use_indirect:
@@ -238,12 +292,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.sample_clamp_indirect += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.sample_clamp_indirect')
                 # set next
                 iteration += 1
                 print("Indirect Clamp Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.sample_clamp_indirect -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.sample_clamp_indirect')
 
         ### CAUSTIC BLUR ###
         if settings.use_caustics:
@@ -253,12 +311,16 @@ class SFR_Benchmark_cy(Operator):
             while repeat:
                 # set settings
                 cycles.blur_glossy += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.blur_glossy')
                 # set next
                 iteration += 1
                 print("Caustic Blur Iteration: ", iteration)
                 # start second render
                 repeat = TestRender(path, iteration, settings)
             cycles.blur_glossy -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.blur_glossy')
 
             ### CAUSTIC REFL ###
             # start first render
@@ -287,6 +349,8 @@ class SFR_Benchmark_cy(Operator):
 
         ### TOTAL ###
         cycles.max_bounces = cycles.diffuse_bounces + cycles.glossy_bounces + cycles.transmission_bounces + cycles.volume_bounces
+        if self.insert_keyframes:
+            keyframe_insert('cycles.max_bounces')
 
         self.report({'INFO'}, "Benchmark complete")
 
