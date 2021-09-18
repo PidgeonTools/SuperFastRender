@@ -114,145 +114,143 @@ class SFR_Benchmark_cy(Operator):
 
         path = settings.inputdir
 
-        iteration = 0
-        repeat = True
-
         ### DIFFUSE ###
-        while repeat and settings.use_diffuse:
+        if settings.use_diffuse:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            print("Diffuse Bounces Pre: ", cycles.diffuse_bounces)
-            cycles.diffuse_bounces += 1
-            # set next
-            iteration += 1
-            print("Diffuse Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-            print("Diffuse Bounces Post: ", cycles.diffuse_bounces)
-        cycles.diffuse_bounces -= 1
-        print("Diffuse Bounces Final: ", cycles.diffuse_bounces)
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                print("Diffuse Bounces Pre: ", cycles.diffuse_bounces)
+                cycles.diffuse_bounces += 1
+                # set next
+                iteration += 1
+                print("Diffuse Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+                print("Diffuse Bounces Post: ", cycles.diffuse_bounces)
+            cycles.diffuse_bounces -= 1
+            print("Diffuse Bounces Final: ", cycles.diffuse_bounces)
 
         ### GLOSS1 ###
-        while repeat and settings.use_glossy:
+        if settings.use_glossy:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.glossy_bounces += 1
-            # set next
-            iteration += 1
-            print("Glossy Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.glossy_bounces -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.glossy_bounces += 1
+                # set next
+                iteration += 1
+                print("Glossy Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.glossy_bounces -= 1
 
         ### TRANSMISSION1 ###
-        while repeat and settings.use_transmission:
+        if settings.use_transmission:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.transmission_bounces += 1
-            # set next
-            iteration += 1
-            print("Transmission Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.transmission_bounces -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.transmission_bounces += 1
+                # set next
+                iteration += 1
+                print("Transmission Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.transmission_bounces -= 1
 
         ### GLOSS2 ###
-        while repeat and settings.use_glossy:
+        if settings.use_transmission and settings.use_glossy:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.glossy_bounces += 1
-            # set next
-            iteration += 1
-            print("Glossy2 Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.glossy_bounces -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.glossy_bounces += 1
+                # set next
+                iteration += 1
+                print("Glossy2 Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.glossy_bounces -= 1
 
         ### TRANSMISSION2 ###
-        while repeat and settings.use_transmission:
+        if settings.use_transmission and settings.use_glossy:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.transmission_bounces += 1
-            # set next
-            iteration += 1
-            print("Transmission2 Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.transmission_bounces -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.transmission_bounces += 1
+                # set next
+                iteration += 1
+                print("Transmission2 Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.transmission_bounces -= 1
 
         ### TRANSPARENT ###
-        while repeat and settings.use_transparent:
+        if settings.use_transparent:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.transparent_max_bounces += 1
-            # set next
-            iteration += 1
-            print("Transparent Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.transparent_max_bounces -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.transparent_max_bounces += 1
+                # set next
+                iteration += 1
+                print("Transparent Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.transparent_max_bounces -= 1
 
         ### VOLUME ###
-        while repeat and settings.use_volume:
+        if settings.use_volume:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.volume_bounces += 1
-            # set next
-            iteration += 1
-            print("Volume Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.volume_bounces -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.volume_bounces += 1
+                # set next
+                iteration += 1
+                print("Volume Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.volume_bounces -= 1
 
         ### INDIRECT ###
-        while repeat and settings.use_indirect:
+        if settings.use_indirect:
             # start first render
+            iteration = 0
+            repeat = True
             TestRender(path, iteration, settings)
-            # set settings
-            cycles.sample_clamp_indirect += 1
-            # set next
-            iteration += 1
-            print("Indirect Clamp Iteration: ", iteration)
-            # start second render
-            repeat = TestRender(path, iteration, settings)
-        cycles.sample_clamp_indirect -= 1
-
-        iteration = 0
-        repeat = True
+            while repeat:
+                # set settings
+                cycles.sample_clamp_indirect += 1
+                # set next
+                iteration += 1
+                print("Indirect Clamp Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.sample_clamp_indirect -= 1
 
         ### CAUSTIC BLUR ###
         if settings.use_caustics:
+            # start first render
+            iteration = 0
+            repeat = TestRender(path, iteration, settings)
             while repeat:
-                # start first render
-                TestRender(path, iteration, settings)
                 # set settings
                 cycles.blur_glossy += 1
                 # set next
@@ -262,30 +260,23 @@ class SFR_Benchmark_cy(Operator):
                 repeat = TestRender(path, iteration, settings)
             cycles.blur_glossy -= 1
 
-            iteration = 0
-            repeat = True
-
             ### CAUSTIC REFL ###
             # start first render
+            iteration = 0
             TestRender(path, iteration, settings)
             # set settings
             cycles.caustics_reflective = True
             # start second render
             cycles.caustics_reflective = TestRender(path, iteration, settings)
 
-            iteration = 0
-            repeat = True
-
             ### CAUSTIC REFR ###
             # start first render
+            iteration = 0
             TestRender(path, iteration, settings)
             # set settings
             cycles.caustics_refractive = True
             # start second render
             cycles.caustics_refractive = TestRender(path, iteration, settings)
-
-            iteration = 0
-            repeat = True
 
         ### get old settings ###
         scene.render.use_compositing = oldCompositing
