@@ -24,11 +24,11 @@ from . import addon_updater_ops
 bl_info = {
     "name": "Super Fast Render (SFR)",
     "author": "Kevin Lorengel, Chris Bond (Kamikaze)",
-    "version": (1, 1, 1),
+    "version": (2, 0, 0),
     "blender": (2, 92, 0),
     "location": "Properties > Render > Super Fast Render",
     "description": "SFR optimizes your scene, so you render faster!",
-    "warning": "",
+    "warning": "IN DEV VERSION",
     "wiki_url": "https://discord.gg/cnFdGQP",
     "category": "Render",
 }
