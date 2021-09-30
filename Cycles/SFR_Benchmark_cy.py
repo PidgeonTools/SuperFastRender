@@ -335,8 +335,15 @@ class SFR_Benchmark_cy(Operator):
             TestRender(path, iteration, settings)
             # set settings
             cycles.caustics_reflective = True
+            if self.insert_keyframes:
+                keyframe_insert('cycles.caustics_reflective')
+            # set next
+            iteration += 1
+            print("Caustics Reflective Iteration: ", iteration)
             # start second render
             cycles.caustics_reflective = TestRender(path, iteration, settings)
+            if self.insert_keyframes:
+                keyframe_insert('cycles.caustics_reflective')
 
             ### CAUSTIC REFR ###
             # start first render
@@ -344,8 +351,15 @@ class SFR_Benchmark_cy(Operator):
             TestRender(path, iteration, settings)
             # set settings
             cycles.caustics_refractive = True
+            if self.insert_keyframes:
+                keyframe_insert('cycles.caustics_refractive')
+            # set next
+            iteration += 1
+            print("Caustics Refractive Iteration: ", iteration)
             # start second render
             cycles.caustics_refractive = TestRender(path, iteration, settings)
+            if self.insert_keyframes:
+                keyframe_insert('cycles.caustics_refractive')
 
         ### get old settings ###
         scene.render.use_compositing = oldCompositing
