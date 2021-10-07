@@ -33,7 +33,7 @@ class SFR_Super_cy(Operator):
         cycles.debug_use_spatial_splits = True
         cycles.debug_use_hair_bvh = True
         scene.render.use_persistent_data = True
-        scene.render.use_save_buffers = True
+        #scene.render.use_save_buffers = True
 
         # set adaptive samples
         cycles.use_adaptive_sampling = True
