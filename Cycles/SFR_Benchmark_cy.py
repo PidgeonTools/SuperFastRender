@@ -60,13 +60,15 @@ class SFR_Benchmark_cy(Operator):
         cycles.debug_use_spatial_splits = True
         cycles.debug_use_hair_bvh = True
         scene.render.use_persistent_data = True
-        if hasattr(scene.render, 'use_save_buffers'):
-            scene.render.use_save_buffers = True
 
         # set adaptive samples
         cycles.use_adaptive_sampling = True
         cycles.samples = 50000
-        cycles.adaptive_threshold = 0.01
+        if bpy.app.version < (3, 0, 0):
+            cycles.adaptive_threshold = 0.01
+        else:
+            # Adaptive sampling has been tweaked in 3.0
+            cycles.adaptive_threshold = 0.04
         cycles.adaptive_min_samples = 64
 
         # set max bounces
@@ -105,14 +107,23 @@ class SFR_Benchmark_cy(Operator):
                 keyframe_insert('cycles.caustics_reflective')
                 keyframe_insert('cycles.caustics_refractive')
 
-        # simplfy the scene
+        # simplify the scene
+        old_use_simplify = scene.render.use_simplify
         scene.render.use_simplify = True
         # viewport
+        old_simplify_subdivision = scene.render.simplify_subdivision
+        old_simplify_child_particles = scene.render.simplify_child_particles
+        old_texture_limit = cycles.texture_limit
+        old_ao_bounces = cycles.ao_bounces
         scene.render.simplify_subdivision = 2
         scene.render.simplify_child_particles = 0.2
         cycles.texture_limit = '2048'
         cycles.ao_bounces = 2
         # render
+        old_simplify_subdivision_render = scene.render.simplify_subdivision_render
+        old_simplify_child_particles_render = scene.render.simplify_child_particles_render
+        old_texture_limit_render = cycles.texture_limit_render
+        old_ao_bounces_render = cycles.ao_bounces_render
         scene.render.simplify_subdivision_render = 4
         scene.render.simplify_child_particles_render = 1
         cycles.texture_limit_render = '4096'
@@ -362,6 +373,15 @@ class SFR_Benchmark_cy(Operator):
                 keyframe_insert('cycles.caustics_refractive')
 
         ### get old settings ###
+        scene.render.use_simplify = old_use_simplify
+        scene.render.simplify_subdivision = old_simplify_subdivision
+        scene.render.simplify_subdivision_render = old_simplify_subdivision_render
+        scene.render.simplify_child_particles = old_simplify_child_particles
+        scene.render.simplify_child_particles_render = old_simplify_child_particles_render
+        cycles.texture_limit = old_texture_limit
+        cycles.texture_limit_render = old_texture_limit_render
+        cycles.ao_bounces = old_ao_bounces
+        cycles.ao_bounces_render = old_ao_bounces_render
         scene.render.use_compositing = oldCompositing
         scene.render.use_sequencer = oldSequencer
         scene.render.resolution_x = oldResX
