@@ -18,11 +18,6 @@ class SFR_Complimentary(Operator):
         name="Detect Best Compute Device", default=True)
 
     def execute(self, context):
-        # SFR sets the correct tile size already
-        if self.AutoTileSize:
-            if 'render_auto_tile_size' in bpy.context.preferences.addons:
-                addon_utils.disable('render_auto_tile_size', default_set=True)
-
         # SID helps with denoising
         if self.GetSID:
             if 'Super Image Denoiser (SID)' in bpy.context.preferences.addons:
