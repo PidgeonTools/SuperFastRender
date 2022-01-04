@@ -1,17 +1,19 @@
+from typing import Text
 import bpy
-from bpy.types import (
-    Panel,
-)
+from bpy.types import Panel
 from .SFR_Settings import SFR_Settings
 from .install_deps import dependencies
 
 
-class SFR_PT_Panel(Panel):
+class SFR_PT_Panel:
     bl_label = "Super Fast Render"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "render"
-    bl_category = 'Pidgeon-Tools'
+    bl_options = {"DEFAULT_CLOSED"}
+
+class SFR_PT_B_Panel(SFR_PT_Panel, Panel):
+    bl_label = "Super Fast Render"
 
     def draw_header(self, context):
         layout = self.layout
@@ -19,9 +21,10 @@ class SFR_PT_Panel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
-        settings: SFR_Settings = scene.sfr_settings
-        RenderEngine = scene.render.engine
+
+        layout.label(text="Check Complimentary Addons", icon='INFO')
+        row = layout.row()
+        row.operator("initalise.complimentary")
 
         # Tell user they need to install dependencies
         if not dependencies.checked:
@@ -38,15 +41,25 @@ class SFR_PT_Panel(Panel):
             )
             col.operator("initialise.sfr_open_addon_prefs", icon='PREFERENCES')
 
-            self.draw_support(layout)
-
             return
+               
 
+
+class SFR_PT_RSO_Panel(SFR_PT_Panel, Panel):
+    bl_label = "Render Settings Optimization"
+    bl_parent_id = "SFR_PT_B_Panel"
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text="", icon="OPTIONS")
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        settings: SFR_Settings = scene.sfr_settings
+        RenderEngine = scene.render.engine
+        
         if RenderEngine == "CYCLES":
-
-            layout.label(text="Check Complimentary Addons", icon='ERROR')
-            row = layout.row()
-            row.operator("initalise.complimentary")
 
             detection_method = layout.column(align=True)
 
@@ -110,21 +123,74 @@ class SFR_PT_Panel(Panel):
 
                 layout.label(text="Start Benchmark")
                 row = layout.row()
-                row.operator("render.superfastrender_benchmark")
-                row.operator("render.superfastrender_animbench")
+                row.operator("render.superfastrender_benchmark", icon="RENDER_STILL")
+                row.operator("render.superfastrender_animbench", icon="RENDER_ANIMATION")
 
                 fileio = layout.column(align=True)
 
                 fileio.prop(settings, "inputdir", text="Benchmarking Files")
-                fileio.separator()
 
         else:
             layout.label(text="This Render Engine is not supported", icon='ERROR')
 
-        self.draw_support(layout)
+class SFR_PT_TO_Panel(SFR_PT_Panel, Panel):
+    bl_label = "Texture Optimizer"
+    bl_parent_id = "SFR_PT_B_Panel"
 
-    def draw_support(self, layout):
-        layout.separator()
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text="", icon="TEXTURE")
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        settings: SFR_Settings = scene.sfr_settings
+
+        layout.label(text="Texture Optimization Factor")
+        col = layout.column(align=True)
+        col.prop(settings, "diffuse_resize", slider=True)
+        col.prop(settings, "specular_resize", slider=True)
+        col.prop(settings, "roughness_resize", slider=True)
+        col.prop(settings, "normal_resize", slider=True)
+        col.prop(settings, "opacity_resize", slider=True)
+        col.prop(settings, "translucency_resize", slider=True)
+        col.separator()
+        
+        layout.label(text="Optimize Textures")
+        row = layout.row()
+        row.operator("render.superfastrender_textureoptim", icon="TEXTURE")
+        row.prop(settings, "create_backup", toggle=True, icon="COPYDOWN")
+        layout.label(text='To prevent damage on existing image files, your files will be copied.', icon='INFO')
+        layout.label(text='you can find the copied files in the "textures" folder in the location of your .blend file', icon='INFO')
+        if settings.create_backup:
+            layout.label(text='the backup files will be saved in "textures backup"', icon='INFO')
+        else:
+            layout.label(text='the optimization step is irreversible, are you sure you do not want a backup', icon='ERROR')
+     
+class SFR_PT_SOCIALS_Panel(SFR_PT_Panel, Panel):
+    bl_label = "Our Socials"
+    bl_parent_id = "SFR_PT_B_Panel"
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text="", icon="FUND")
+
+    def draw(self, context):
+        layout = self.layout
         col = layout.column()
-        op = col.operator("wm.url_open", text="Support", icon="URL")
+        op = col.operator("wm.url_open", text="Join our Discord!", icon="URL")
         op.url = "https://discord.gg/cnFdGQP"
+        layout.separator()        
+        op = col.operator("wm.url_open", text="Our YouTube Channel!", icon="URL")
+        op.url = "https://www.youtube.com/channel/UCgLo3l_ZzNZ2BCQMYXLiIOg"
+        op = col.operator("wm.url_open", text="Our BlenderMarket!", icon="URL")
+        op.url = "https://blendermarket.com/creators/kevin-lorengel"   
+        op = col.operator("wm.url_open", text="Our Instagram Page!", icon="URL")
+        op.url = "https://www.instagram.com/pidgeontools/"    
+        op = col.operator("wm.url_open", text="Our Twitter Page!", icon="URL")
+        op.url = "https://twitter.com/PidgeonTools"
+        layout.separator()        
+        op = col.operator("wm.url_open", text="Feedback", icon="URL")
+        op.url = "https://discord.gg/cnFdGQP"
+    
+preview_collections = {}

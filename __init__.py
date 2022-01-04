@@ -1,3 +1,4 @@
+import os
 import bpy
 from bpy.props import (
     PointerProperty,
@@ -17,15 +18,16 @@ from .Utils.SFR_AnimationBenchmark import SFR_AnimationBenchmark
 from .Cycles.SFR_Super_cy import SFR_Super_cy
 from .Cycles.SFR_High_cy import SFR_High_cy
 from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
-from .SFR_Panel import SFR_PT_Panel
+from .SFR_Panel import SFR_PT_B_Panel, SFR_PT_RSO_Panel, SFR_PT_TO_Panel, SFR_PT_SOCIALS_Panel
+from .Utils.SFR_TextureOptimizer import SFR_TextureOptimizer
 
 from . import addon_updater_ops
 
 bl_info = {
     "name": "Super Fast Render (SFR)",
     "author": "Kevin Lorengel, Chris Bond (Kamikaze)",
-    "version": (2, 0, 2),
-    "blender": (2, 92, 0),
+    "version": (3, 0, 0),
+    "blender": (3, 0, 0),
     "location": "Properties > Render > Super Fast Render",
     "description": "SFR optimizes your scene, so you render faster!",
     "warning": "IN DEV VERSION",
@@ -123,13 +125,17 @@ classes = (
     SFR_Super_cy,
     SFR_Benchmark_cy,
     SFR_Complimentary,
-    SFR_PT_Panel,
+    SFR_PT_B_Panel,
+    SFR_PT_RSO_Panel,
+    SFR_PT_TO_Panel,
+    SFR_PT_SOCIALS_Panel,
     SFR_Settings,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
     SIDPreferences,
     SFR_AnimationBenchmark,
     SFR_OT_OpenAddonPrefs,
+    SFR_TextureOptimizer
 )
 
 
@@ -147,8 +153,7 @@ def register():
 
     bpy.types.Scene.sfr_settings = PointerProperty(
         type=SFR_Settings, options=set())
-
-
+   
 def unregister():
     # addon updater unregister
     addon_updater_ops.unregister()

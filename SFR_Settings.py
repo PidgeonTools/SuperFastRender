@@ -14,6 +14,8 @@ from bpy.props import (
 
 class SFR_Settings(PropertyGroup):
 
+#### SETTINGS OPTIMIZER ####
+
     detection_method: EnumProperty(
         name="Optimization Method",
         items=(
@@ -98,4 +100,60 @@ class SFR_Settings(PropertyGroup):
         name="Caustics",
         default=False,
         description="Benchmark caustic blur"
+    )
+
+#### TEXTURE OPTIMIZER ####
+
+    diffuse_resize: IntProperty(
+        name="Diffuse / Albedo",
+        default=0,
+        max=7,
+        min=0,
+        description="the factor by which the diffuse or albedo textures will be scaled down, 0 = unaffected \nrecomended: 0",
+        options=set(),  # Not animatable!
+    )
+    specular_resize: IntProperty(
+        name="Specular / Metallic",
+        default=2,
+        max=7,
+        min=0,
+        description="the factor by which the specular or metallic textures will be scaled down, 0 = unaffected \nrecomended: 2",
+        options=set(),  # Not animatable!
+    )
+    roughness_resize: IntProperty(
+        name="Roughness / Glossiness",
+        default=2,
+        max=7,
+        min=0,
+        description="the factor by which the roughness or glossiness textures will be scaled down, 0 = unaffected \nrecomended: 2",
+        options=set(),  # Not animatable!
+    )
+    normal_resize: IntProperty(
+        name="Normal / Bump",
+        default=1,
+        max=7,
+        min=0,
+        description="the factor by which the normal or bump textures will be scaled down, 0 = unaffected \nrecomended: 1",
+        options=set(),  # Not animatable!
+    )
+    opacity_resize: IntProperty(
+        name="Opacity / Transparency",
+        default=1,
+        max=7,
+        min=0,
+        description="the factor by which the opacity or transparency textures will be scaled down, 0 = unaffected \nrecomended: 1",
+        options=set(),  # Not animatable!
+    )
+    translucency_resize: IntProperty(
+        name="Translucency",
+        default=1,
+        max=7,
+        min=0,
+        description="the factor by which the translucency textures will be scaled down, 0 = unaffected \nrecomended: 1",
+        options=set(),  # Not animatable!
+    )
+    create_backup: BoolProperty(
+        name="Create Backup",
+        default=True,
+        description='Creates a backup of all the image files in the folder "textures backup"\nwe heavily recomend to keep this enabled'
     )

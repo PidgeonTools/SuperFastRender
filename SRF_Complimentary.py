@@ -12,8 +12,6 @@ class SFR_Complimentary(Operator):
     bl_idname = "initalise.complimentary"
     bl_label = "Complimentary Addons"
 
-    AutoTileSize: bpy.props.BoolProperty(
-        name="Disable Auto Tilesize", default=True)
     GetSID: bpy.props.BoolProperty(name="Enable / Download SID", default=True)
     #GetSRR: bpy.props.BoolProperty(name="Enable / Download SRR", default=True)
     ComputeDevice: bpy.props.BoolProperty(
@@ -27,8 +25,8 @@ class SFR_Complimentary(Operator):
 
         # SID helps with denoising
         if self.GetSID:
-            if 'SuperImageDenoiser' in bpy.context.preferences.addons:
-                addon_utils.enable('SuperImageDenoiser', default_set=True)
+            if 'Super Image Denoiser (SID)' in bpy.context.preferences.addons:
+                addon_utils.enable('Super Image Denoiser (SID)', default_set=True)
             else:
                 webbrowser.open(
                     'https://gumroad.com/l/superimagedenoiser', new=2)

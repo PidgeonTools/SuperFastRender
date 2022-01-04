@@ -39,24 +39,6 @@ class SFR_Benchmark_cy(Operator):
         settings: SFR_Settings = scene.sfr_settings
         keyframe_insert = scene.keyframe_insert
 
-        prefs = context.preferences.addons['cycles'].preferences
-
-        for device_type in prefs.get_device_types(context):
-            prefs.get_devices_for_type(device_type[0])
-
-        if prefs.get_devices_for_type == 'OPTIX':
-            scene.render.tile_x = 512
-            scene.render.tile_y = 512
-        elif prefs.get_devices_for_type == 'CUDA':
-            scene.render.tile_x = 256
-            scene.render.tile_y = 256
-        elif prefs.get_devices_for_type == 'OPENCL':
-            scene.render.tile_x = 256
-            scene.render.tile_y = 256
-        elif prefs.get_devices_for_type == 'CPU':
-            scene.render.tile_x = 32
-            scene.render.tile_y = 32
-
         cycles.debug_use_spatial_splits = True
         cycles.debug_use_hair_bvh = True
         scene.render.use_persistent_data = True
@@ -153,6 +135,26 @@ class SFR_Benchmark_cy(Operator):
         scene.render.image_settings.color_mode = 'RGBA'
 
         path = settings.inputdir
+
+        ### TRANSPARENT ###
+        if settings.use_transparent:
+            # start first render
+            iteration = 0
+            repeat = True
+            TestRender(path, iteration, settings)
+            while repeat:
+                # set settings
+                cycles.transparent_max_bounces += 1
+                if self.insert_keyframes:
+                    keyframe_insert('cycles.transparent_max_bounces')
+                # set next
+                iteration += 1
+                print("Transparent Iteration: ", iteration)
+                # start second render
+                repeat = TestRender(path, iteration, settings)
+            cycles.transparent_max_bounces -= 1
+            if self.insert_keyframes:
+                keyframe_insert('cycles.transparent_max_bounces')
 
         ### DIFFUSE ###
         if settings.use_diffuse:
@@ -256,26 +258,6 @@ class SFR_Benchmark_cy(Operator):
             cycles.transmission_bounces -= 1
             if self.insert_keyframes:
                 keyframe_insert('cycles.transmission_bounces')
-
-        ### TRANSPARENT ###
-        if settings.use_transparent:
-            # start first render
-            iteration = 0
-            repeat = True
-            TestRender(path, iteration, settings)
-            while repeat:
-                # set settings
-                cycles.transparent_max_bounces += 1
-                if self.insert_keyframes:
-                    keyframe_insert('cycles.transparent_max_bounces')
-                # set next
-                iteration += 1
-                print("Transparent Iteration: ", iteration)
-                # start second render
-                repeat = TestRender(path, iteration, settings)
-            cycles.transparent_max_bounces -= 1
-            if self.insert_keyframes:
-                keyframe_insert('cycles.transparent_max_bounces')
 
         ### VOLUME ###
         if settings.use_volume:

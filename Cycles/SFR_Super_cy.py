@@ -10,26 +10,8 @@ class SFR_Super_cy(Operator):
     bl_description = "Optimizes the scene for fastest rendering, this is a general optimization step"
 
     def execute(self, context):
-        prefs = bpy.context.preferences.addons['cycles'].preferences
         scene = bpy.context.scene
         cycles = scene.cycles
-
-        for device_type in prefs.get_device_types(bpy.context):
-            prefs.get_devices_for_type(device_type[0])
-
-        if prefs.get_devices_for_type == 'OPTIX':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
-        elif prefs.get_devices_for_type == 'CUDA':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
-        elif prefs.get_devices_for_type == 'OPENCL':
-            scene.render.tile_x = 200
-            scene.render.tile_y = 200
-        elif prefs.get_devices_for_type == 'CPU':
-            scene.render.tile_x = 32
-            scene.render.tile_y = 32
-
         cycles.debug_use_spatial_splits = True
         cycles.debug_use_hair_bvh = True
         scene.render.use_persistent_data = True
