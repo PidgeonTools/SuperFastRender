@@ -45,7 +45,7 @@ class SFR_TextureOptimizer(Operator):
             for eachName in Diffuse:
                 for iFiles in os.listdir(path):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Diffuse[currDiffuse] in nc(iFiles):
-                            settings.resize_image(iFiles, settings.diffuse_resize)
+                            settings.resize_image(iFiles, settings.diffuse_resize, path)
                 currDiffuse += 1
 
         if settings.specular_resize > 0:
@@ -53,7 +53,7 @@ class SFR_TextureOptimizer(Operator):
             for eachName in Specular:
                 for iFiles in os.listdir(path):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Specular[currSpecular] in nc(iFiles):
-                            resize_image(iFiles, settings.specular_resize)
+                            resize_image(iFiles, settings.specular_resize, path)
                 currSpecular += 1
 
         if settings.roughness_resize > 0:
@@ -61,7 +61,7 @@ class SFR_TextureOptimizer(Operator):
             for eachName in Roughness:
                 for iFiles in os.listdir(path):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Roughness[currRoughness] in nc(iFiles):
-                        resize_image(iFiles, settings.roughness_resize)
+                        resize_image(iFiles, settings.roughness_resize, path)
                 currRoughness += 1
 
         if settings.opacity_resize > 0:
@@ -69,7 +69,7 @@ class SFR_TextureOptimizer(Operator):
             for eachName in Opacity:
                 for iFiles in os.listdir(path):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Opacity[currOpacity] in nc(iFiles):
-                        resize_image(iFiles, settings.opacity_resize)
+                        resize_image(iFiles, settings.opacity_resize, path)
                 currOpacity += 1
 
         if settings.normal_resize > 0:
@@ -77,7 +77,7 @@ class SFR_TextureOptimizer(Operator):
             for eachName in Normal:
                 for iFiles in os.listdir(path):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Normal[currNormal] in nc(iFiles):
-                        resize_image(iFiles, settings.normal_resize)
+                        resize_image(iFiles, settings.normal_resize, path)
                 currNormal += 1
 
         if settings.translucency_resize > 0:
@@ -85,7 +85,7 @@ class SFR_TextureOptimizer(Operator):
             for eachName in Translucency:
                 for iFiles in os.listdir(path):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Translucency[currTranslucency] in nc(iFiles):
-                        resize_image(iFiles, settings.translucency_resize)
+                        resize_image(iFiles, settings.translucency_resize, path)
                 currTranslucency += 1
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
