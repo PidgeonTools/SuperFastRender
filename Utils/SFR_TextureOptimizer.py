@@ -17,6 +17,21 @@ class SFR_TextureOptimizer(Operator):
         pass
     imageio.core.util._precision_warn = ignore_warnings
 
+    def invoke(self, context, event):
+        
+        return context.window_manager.invoke_props_dialog(self, width = 400)
+    
+    def draw(self,context):
+        layout = self.layout
+        layout.label(text = "Optimizing your textures can take a while.")
+        layout.label(text = "We recomend you open the system console, if you are on windows.")
+        layout.label(text = 'To do so, go to your top bar "Window" -> "Toggle System Console"')
+        layout.label(text = "There you will be able to see the progress.")
+        layout.separator()
+        layout.label(text = "Blender will freeze, please be patient.")
+        layout.separator()
+        layout.label(text = "To proceed with the optimization, press [OK]")
+
     def execute(self, context: Context):
         
         #put all images into one folder
