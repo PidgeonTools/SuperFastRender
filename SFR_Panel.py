@@ -1,8 +1,52 @@
-from typing import Text
+import typing
+import os
 import bpy
 from bpy.types import Panel
 from .SFR_Settings import SFR_Settings
 from .install_deps import dependencies
+
+ICON_DIR_NAME = "icons"
+
+class IconManager:
+    def __init__(self, additional_paths: typing.Optional[typing.List[str]] = None):
+        self.icon_previews = bpy.utils.previews.new()
+        self.additional_paths = additional_paths if additional_paths is not None else []
+        self.load_all()
+
+    def load_all(self) -> None:
+        icons_dir = os.path.join(os.path.dirname(__file__), ICON_DIR_NAME)
+        self.load_icons_from_directory(icons_dir)
+
+        for path in self.additional_paths:
+            self.load_icons_from_directory(os.path.join(path, ICON_DIR_NAME))
+
+    def load_icons_from_directory(self, path: str) -> None:
+        if not os.path.isdir(path):
+            raise RuntimeError(f"Cannot load icons from {path}, it is not valid dir")
+
+        for icon_filename in os.listdir(path):
+            self.load_icon(icon_filename, path)
+
+    def load_icon(self, filename: str, path: str) -> None:
+        if not filename.endswith((".png")):
+            return
+
+        icon_basename, _ = os.path.splitext(filename)
+        if icon_basename in self.icon_previews:
+            return
+
+        self.icon_previews.load(icon_basename, os.path.join(
+            path, filename), "IMAGE")
+
+    def get_icon(self, icon_name: str) -> bpy.types.ImagePreview:
+        return self.icon_previews[icon_name]
+
+    def get_icon_id(self, icon_name: str) -> int:
+        return self.icon_previews[icon_name].icon_id
+
+
+icon_manager = IconManager()
+
 
 
 class SFR_PT_Panel:
@@ -43,8 +87,6 @@ class SFR_PT_B_Panel(SFR_PT_Panel, Panel):
 
             return
                
-
-
 class SFR_PT_RSO_Panel(SFR_PT_Panel, Panel):
     bl_label = "Render Settings Optimization"
     bl_parent_id = "SFR_PT_B_Panel"
@@ -178,19 +220,39 @@ class SFR_PT_SOCIALS_Panel(SFR_PT_Panel, Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        op = col.operator("wm.url_open", text="Join our Discord!", icon="URL")
-        op.url = "https://discord.gg/cnFdGQP"
-        layout.separator()        
-        op = col.operator("wm.url_open", text="Our YouTube Channel!", icon="URL")
-        op.url = "https://www.youtube.com/channel/UCgLo3l_ZzNZ2BCQMYXLiIOg"
-        op = col.operator("wm.url_open", text="Our BlenderMarket!", icon="URL")
-        op.url = "https://blendermarket.com/creators/kevin-lorengel"   
-        op = col.operator("wm.url_open", text="Our Instagram Page!", icon="URL")
-        op.url = "https://www.instagram.com/pidgeontools/"    
-        op = col.operator("wm.url_open", text="Our Twitter Page!", icon="URL")
-        op.url = "https://twitter.com/PidgeonTools"
-        layout.separator()        
-        op = col.operator("wm.url_open", text="Feedback", icon="URL")
-        op.url = "https://discord.gg/cnFdGQP"
+        col.operator(
+            "wm.url_open",
+            text="Join our Discord!",
+            icon_value = icon_manager.get_icon_id("Discord")
+            ).url = "https://discord.gg/cnFdGQP"
+        layout.separator()
+
+        col.operator(
+            "wm.url_open",
+            text="Our YouTube Channel!",
+            icon_value = icon_manager.get_icon_id("Youtube")
+            ).url = "https://www.youtube.com/channel/UCgLo3l_ZzNZ2BCQMYXLiIOg"
+        col.operator(
+            "wm.url_open",
+            text="Our BlenderMarket!",
+            icon_value = icon_manager.get_icon_id("BlenderMarket")
+            ).url = "https://blendermarket.com/creators/kevin-lorengel"   
+        col.operator(
+            "wm.url_open",
+            text="Our Instagram Page!",
+            icon_value = icon_manager.get_icon_id("Instagram")
+            ).url = "https://www.instagram.com/pidgeontools/"    
+        col.operator(
+            "wm.url_open",
+            text="Our Twitter Page!",
+            icon_value = icon_manager.get_icon_id("Twitter")
+            ).url = "https://twitter.com/PidgeonTools"
+        layout.separator()
+
+        col.operator(
+            "wm.url_open",
+            text="Support and Feedback!",
+            icon="HELP"
+            ).url = "https://discord.gg/cnFdGQP"
     
 preview_collections = {}
