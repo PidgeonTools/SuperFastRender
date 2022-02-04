@@ -18,17 +18,16 @@ class SFR_TextureOptimizer(Operator):
     imageio.core.util._precision_warn = ignore_warnings
 
     def invoke(self, context, event):
-        
         return context.window_manager.invoke_props_dialog(self, width = 400)
-    
+
     def draw(self,context):
         layout = self.layout
         layout.label(text = "Optimizing your textures can take a while.")
-        layout.label(text = "We recomend you open the system console, if you are on windows.")
+        layout.label(text = "We recommend you open the System Console, if you are on Windows.")
         layout.label(text = 'To do so, go to your top bar "Window" -> "Toggle System Console"')
         layout.label(text = "There you will be able to see the progress.")
         layout.separator()
-        layout.label(text = "Blender will freeze, please be patient.")
+        layout.label(text = "Blender will appear to freeze, please be patient.")
         layout.separator()
         layout.label(text = "To proceed with the optimization, press [OK]")
 
@@ -53,7 +52,7 @@ class SFR_TextureOptimizer(Operator):
         Normal = ["normal","norm","nor","nrm","bump","bmp","height"]
         Translucency = ["translucency","transmission","translucent"]
 
-        print("TEXTURE OPTIMIZATION: INNITIALIZED")
+        print("TEXTURE OPTIMIZATION: INITIALIZED")
 
         if settings.diffuse_resize > 0:
             currDiffuse = 0
@@ -102,6 +101,7 @@ class SFR_TextureOptimizer(Operator):
                     if os.path.isfile(nc(os.path.join(path,iFiles))) and Translucency[currTranslucency] in nc(iFiles):
                         resize_image(iFiles, settings.translucency_resize, path)
                 currTranslucency += 1
+
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
         return {'FINISHED'}

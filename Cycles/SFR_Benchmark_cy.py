@@ -21,11 +21,11 @@ class SFR_Benchmark_cy(Operator):
     def draw(self,context):
         layout = self.layout
         layout.label(text = "Benchmarking your scene can take a while.")
-        layout.label(text = "We recomend you open the system console, if you are on windows.")
+        layout.label(text = "We recommend you open the System Console, if you are on Windows.")
         layout.label(text = 'To do so, go to your top bar "Window" -> "Toggle System Console"')
         layout.label(text = "There you will be able to see the progress.")
         layout.separator()
-        layout.label(text = "Blender will freeze, please be patient.")
+        layout.label(text = "Blender will appear to freeze, please be patient.")
         layout.separator()
         layout.label(text = "To proceed with the benchmark, press [OK]")
 

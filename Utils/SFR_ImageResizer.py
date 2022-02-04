@@ -7,7 +7,7 @@ import pathlib
 
 def resize_image(currFile, resizeFactor, path):
     if pathlib.Path(nc(path + currFile)).suffix == ".exr":
-        print("Unspported file type, skipping " + currFile)
+        print("Unsupported file type, skipping " + currFile)
     else:
         resizeFactor = resizeFactor + 1
         image = io.imread(path + currFile)
