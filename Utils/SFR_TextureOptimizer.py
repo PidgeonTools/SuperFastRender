@@ -2,7 +2,6 @@ import bpy
 from bpy.types import Context, Operator
 import os
 nc = os.path.normcase
-import imageio.core.util
 from distutils.dir_util import copy_tree
 from .. import SFR_Settings
 from .SFR_ImageResizer import resize_image
@@ -11,11 +10,6 @@ class SFR_TextureOptimizer(Operator):
     bl_idname = "render.superfastrender_textureoptim"
     bl_label = "Texture Optimizer"
     bl_description = "Optimizes your textures"
-
-    #make skimage not give warning
-    def ignore_warnings(*args, **kwargs):
-        pass
-    imageio.core.util._precision_warn = ignore_warnings
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width = 400)
@@ -51,6 +45,12 @@ class SFR_TextureOptimizer(Operator):
         Opacity = ["opacity","alpha","presence"]
         Normal = ["normal","norm","nor","nrm","bump","bmp","height"]
         Translucency = ["translucency","transmission","translucent"]
+
+        #make skimage not give warning
+        import imageio.core.util
+        def ignore_warnings(*args, **kwargs):
+            pass
+        imageio.core.util._precision_warn = ignore_warnings
 
         print("TEXTURE OPTIMIZATION: INITIALIZED")
 
