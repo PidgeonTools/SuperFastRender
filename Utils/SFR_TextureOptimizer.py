@@ -25,19 +25,8 @@ class SFR_TextureOptimizer(Operator):
         layout.separator()
         layout.label(text = "To proceed with the optimization, press [OK]")
 
-
     def execute(self, context: Context):
         
-        def do_resize(settings, path, setting, prop):
-            if setting > 0:
-                currVal = 0
-                for iFiles in os.listdir(path):
-                    currVal = 0
-                    for eachName in prop:
-                        if os.path.isfile(nc(os.path.join(path,iFiles))) and prop[currVal] in nc(iFiles):
-                            resize_image(iFiles, setting, path)
-                    currVal += 1
-                    
         #put all images into one folder
         bpy.ops.file.pack_all()
         bpy.ops.file.unpack_all(method="USE_LOCAL")
@@ -57,7 +46,6 @@ class SFR_TextureOptimizer(Operator):
         Normal = ["normal","norm","nor","nrm","bump","bmp","height"]
         Translucency = ["translucency","transmission","translucent"]
 
-<<<<<<< Updated upstream
         #make skimage not give warning
         import imageio.core.util
         def ignore_warnings(*args, **kwargs):
@@ -122,14 +110,6 @@ class SFR_TextureOptimizer(Operator):
                         continue
                     resize_image(file, settings.translucency_resize, path)
 
-=======
-        print("TEXTURE OPTIMIZATION: INNITIALIZED")
-
-        do_resize(settings, path, settings.diffuse_resize, Diffuse)
-        do_resize(settings, path, settings.specular_resize, Specular)
-        do_resize(settings, path, settings.roughness_resize, Roughness)
-                
->>>>>>> Stashed changes
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
         return {'FINISHED'}
