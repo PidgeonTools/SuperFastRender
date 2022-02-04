@@ -54,53 +54,61 @@ class SFR_TextureOptimizer(Operator):
 
         print("TEXTURE OPTIMIZATION: INITIALIZED")
 
-        if settings.diffuse_resize > 0:
-            currDiffuse = 0
-            for eachName in Diffuse:
-                for iFiles in os.listdir(path):
-                    if os.path.isfile(nc(os.path.join(path,iFiles))) and Diffuse[currDiffuse] in nc(iFiles):
-                            settings.resize_image(iFiles, settings.diffuse_resize, path)
-                currDiffuse += 1
+        # Don't resize the same file more than once, in case the name matches more than one type
+        seen = {} # file => [Diffuse, Specular, ...]
+        def add_to_seen(file, type):
+            if not file in seen:
+                seen[file] = []
+            seen[file].append(type)
+            if len(seen[file]) > 1:
+                types = ", ".join(seen[file])
+                print(f'Warning: image file "{file}" matches multiple texture types: {types}! Will not resize again.')
+                return True
 
-        if settings.specular_resize > 0:
-            currSpecular = 0
-            for eachName in Specular:
-                for iFiles in os.listdir(path):
-                    if os.path.isfile(nc(os.path.join(path,iFiles))) and Specular[currSpecular] in nc(iFiles):
-                            resize_image(iFiles, settings.specular_resize, path)
-                currSpecular += 1
+            return False
 
-        if settings.roughness_resize > 0:
-            currRoughness = 0
-            for eachName in Roughness:
-                for iFiles in os.listdir(path):
-                    if os.path.isfile(nc(os.path.join(path,iFiles))) and Roughness[currRoughness] in nc(iFiles):
-                        resize_image(iFiles, settings.roughness_resize, path)
-                currRoughness += 1
 
-        if settings.opacity_resize > 0:
-            currOpacity = 0
-            for eachName in Opacity:
-                for iFiles in os.listdir(path):
-                    if os.path.isfile(nc(os.path.join(path,iFiles))) and Opacity[currOpacity] in nc(iFiles):
-                        resize_image(iFiles, settings.opacity_resize, path)
-                currOpacity += 1
+        for file in os.listdir(path):
+            if not os.path.isfile(os.path.join(path, file)):
+                continue
+            # lowercase file name for comparisons
+            nc_file = nc(file)
 
-        if settings.normal_resize > 0:
-            currNormal = 0
-            for eachName in Normal:
-                for iFiles in os.listdir(path):
-                    if os.path.isfile(nc(os.path.join(path,iFiles))) and Normal[currNormal] in nc(iFiles):
-                        resize_image(iFiles, settings.normal_resize, path)
-                currNormal += 1
+            if settings.diffuse_resize > 0:
+                if [name for name in Diffuse if name in nc_file]:
+                    if add_to_seen(file, 'Diffuse'):
+                        continue
+                    resize_image(file, settings.diffuse_resize, path)
 
-        if settings.translucency_resize > 0:
-            currTranslucency = 0
-            for eachName in Translucency:
-                for iFiles in os.listdir(path):
-                    if os.path.isfile(nc(os.path.join(path,iFiles))) and Translucency[currTranslucency] in nc(iFiles):
-                        resize_image(iFiles, settings.translucency_resize, path)
-                currTranslucency += 1
+            if settings.specular_resize > 0:
+                if [name for name in Specular if name in nc_file]:
+                    if add_to_seen(file, 'Specular'):
+                        continue
+                    resize_image(file, settings.specular_resize, path)
+
+            if settings.roughness_resize > 0:
+                if [name for name in Roughness if name in nc_file]:
+                    if add_to_seen(file, 'Roughness'):
+                        continue
+                    resize_image(file, settings.roughness_resize, path)
+
+            if settings.opacity_resize > 0:
+                if [name for name in Opacity if name in nc_file]:
+                    if add_to_seen(file, 'Opacity'):
+                        continue
+                    resize_image(file, settings.opacity_resize, path)
+
+            if settings.normal_resize > 0:
+                if [name for name in Normal if name in nc_file]:
+                    if add_to_seen(file, 'Normal'):
+                        continue
+                    resize_image(file, settings.normal_resize, path)
+
+            if settings.translucency_resize > 0:
+                if [name for name in Translucency if name in nc_file]:
+                    if add_to_seen(file, 'Translucency'):
+                        continue
+                    resize_image(file, settings.translucency_resize, path)
 
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
