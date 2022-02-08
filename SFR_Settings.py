@@ -109,7 +109,15 @@ class SFR_Settings(PropertyGroup):
         default=0,
         max=7,
         min=0,
-        description="the factor by which the diffuse or albedo textures will be scaled down, 0 = unaffected \nrecomended: 0",
+        description="the factor by which the ambient occlusion textures will be scaled down, 0 = unaffected \nrecomended: 0",
+        options=set(),  # Not animatable!
+    )
+    ao_resize: IntProperty(
+        name="Ambient Occlusion",
+        default=2,
+        max=7,
+        min=0,
+        description="the factor by which the roughness or glossiness textures will be scaled down, 0 = unaffected \nrecomended: 2",
         options=set(),  # Not animatable!
     )
     specular_resize: IntProperty(

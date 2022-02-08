@@ -45,6 +45,7 @@ class SFR_TextureOptimizer(Operator):
         Opacity = ["opacity","alpha","presence"]
         Normal = ["normal","norm","nor","nrm","bump","bmp","height"]
         Translucency = ["translucency","transmission","translucent"]
+        AO = ["ao","ambient occlusion","occlusion"]
 
         #make skimage not give warning
         import imageio.core.util
@@ -67,49 +68,27 @@ class SFR_TextureOptimizer(Operator):
 
             return False
 
+        def do_resize(path, setting, prop, type):
+            for file in os.listdir(path):
+                if not os.path.isfile(os.path.join(path, file)):
+                    continue
+                # lowercase file name for comparisons
+                nc_file = nc(file)
 
-        for file in os.listdir(path):
-            if not os.path.isfile(os.path.join(path, file)):
-                continue
-            # lowercase file name for comparisons
-            nc_file = nc(file)
-
-            if settings.diffuse_resize > 0:
-                if [name for name in Diffuse if name in nc_file]:
-                    if add_to_seen(file, 'Diffuse'):
-                        continue
-                    resize_image(file, settings.diffuse_resize, path)
-
-            if settings.specular_resize > 0:
-                if [name for name in Specular if name in nc_file]:
-                    if add_to_seen(file, 'Specular'):
-                        continue
-                    resize_image(file, settings.specular_resize, path)
-
-            if settings.roughness_resize > 0:
-                if [name for name in Roughness if name in nc_file]:
-                    if add_to_seen(file, 'Roughness'):
-                        continue
-                    resize_image(file, settings.roughness_resize, path)
-
-            if settings.opacity_resize > 0:
-                if [name for name in Opacity if name in nc_file]:
-                    if add_to_seen(file, 'Opacity'):
-                        continue
-                    resize_image(file, settings.opacity_resize, path)
-
-            if settings.normal_resize > 0:
-                if [name for name in Normal if name in nc_file]:
-                    if add_to_seen(file, 'Normal'):
-                        continue
-                    resize_image(file, settings.normal_resize, path)
-
-            if settings.translucency_resize > 0:
-                if [name for name in Translucency if name in nc_file]:
-                    if add_to_seen(file, 'Translucency'):
-                        continue
-                    resize_image(file, settings.translucency_resize, path)
-
+                if setting > 0:
+                    if [name for name in prop if name in nc_file]:
+                        if add_to_seen(file, type):
+                            continue
+                        resize_image(file, setting, path)
+            
+        do_resize(path, settings.diffuse_resize, Diffuse, 'Diffuse')
+        do_resize(path, settings.ao_resize, AO, 'AO')
+        do_resize(path, settings.specular_resize, Specular, 'Specular')
+        do_resize(path, settings.roughness_resize, Roughness, 'Roughness')
+        do_resize(path, settings.opacity_resize, Opacity, 'Opacity')
+        do_resize(path, settings.normal_resize, Normal, 'Normal')
+        do_resize(path, settings.translucency_resize, Translucency, 'Translucency')
+                
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
         return {'FINISHED'}

@@ -191,6 +191,7 @@ class SFR_PT_TO_Panel(SFR_PT_Panel, Panel):
         layout.label(text="Texture Optimization Factor")
         col = layout.column(align=True)
         col.prop(settings, "diffuse_resize", slider=True)
+        col.prop(settings, "ao_resize", slider=True)
         col.prop(settings, "specular_resize", slider=True)
         col.prop(settings, "roughness_resize", slider=True)
         col.prop(settings, "normal_resize", slider=True)
