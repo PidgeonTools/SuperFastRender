@@ -68,27 +68,27 @@ class SFR_TextureOptimizer(Operator):
 
             return False
 
-        def do_resize(path, setting, prop, type):
-            for file in os.listdir(path):
-                if not os.path.isfile(os.path.join(path, file)):
-                    continue
-                # lowercase file name for comparisons
-                nc_file = nc(file)
+        def resize_if_not_seen(path, file, nc_file, setting, prop, type):
+            if setting > 0:
+                if [name for name in prop if name in nc_file]:
+                    if add_to_seen(file, type):
+                        return
+                    resize_image(file, setting, path)
 
-                if setting > 0:
-                    if [name for name in prop if name in nc_file]:
-                        if add_to_seen(file, type):
-                            continue
-                        resize_image(file, setting, path)
-            
-        do_resize(path, settings.diffuse_resize, Diffuse, 'Diffuse')
-        do_resize(path, settings.ao_resize, AO, 'AO')
-        do_resize(path, settings.specular_resize, Specular, 'Specular')
-        do_resize(path, settings.roughness_resize, Roughness, 'Roughness')
-        do_resize(path, settings.opacity_resize, Opacity, 'Opacity')
-        do_resize(path, settings.normal_resize, Normal, 'Normal')
-        do_resize(path, settings.translucency_resize, Translucency, 'Translucency')
-                
+        for file in os.listdir(path):
+            if not os.path.isfile(os.path.join(path, file)):
+                continue
+            # lowercase file name for comparisons
+            nc_file = nc(file)
+
+            resize_if_not_seen(path, file, nc_file, settings.diffuse_resize, Diffuse, 'Diffuse')
+            resize_if_not_seen(path, file, nc_file, settings.ao_resize, AO, 'AO')
+            resize_if_not_seen(path, file, nc_file, settings.specular_resize, Specular, 'Specular')
+            resize_if_not_seen(path, file, nc_file, settings.roughness_resize, Roughness, 'Roughness')
+            resize_if_not_seen(path, file, nc_file, settings.opacity_resize, Opacity, 'Opacity')
+            resize_if_not_seen(path, file, nc_file, settings.normal_resize, Normal, 'Normal')
+            resize_if_not_seen(path, file, nc_file, settings.translucency_resize, Translucency, 'Translucency')
+
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
         return {'FINISHED'}
