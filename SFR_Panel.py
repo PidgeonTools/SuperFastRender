@@ -86,7 +86,7 @@ class SFR_PT_B_Panel(SFR_PT_Panel, Panel):
             col.operator("initialise.sfr_open_addon_prefs", icon='PREFERENCES')
 
             return
-               
+
 class SFR_PT_RSO_Panel(SFR_PT_Panel, Panel):
     bl_label = "Render Settings Optimization"
     bl_parent_id = "SFR_PT_B_Panel"
@@ -100,7 +100,7 @@ class SFR_PT_RSO_Panel(SFR_PT_Panel, Panel):
         scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
         RenderEngine = scene.render.engine
-        
+
         if RenderEngine == "CYCLES":
 
             detection_method = layout.column(align=True)
@@ -198,18 +198,18 @@ class SFR_PT_TO_Panel(SFR_PT_Panel, Panel):
         col.prop(settings, "opacity_resize", slider=True)
         col.prop(settings, "translucency_resize", slider=True)
         col.separator()
-        
+
         layout.label(text="Optimize Textures")
         row = layout.row()
         row.operator("render.superfastrender_textureoptim", icon="TEXTURE")
         row.prop(settings, "create_backup", toggle=True, icon="COPYDOWN")
-        layout.label(text='To prevent damage on existing image files, your files will be copied.', icon='INFO')
-        layout.label(text='you can find the copied files in the "textures" folder in the location of your .blend file', icon='INFO')
+        layout.label(text='To prevent overwriting existing image files, your files will be copied.', icon='INFO')
+        layout.label(text='You can find the copied files in the "textures" folder in the location of your .blend file.', icon='INFO')
         if settings.create_backup:
-            layout.label(text='the backup files will be saved in "textures backup"', icon='INFO')
+            layout.label(text='The backup files will be saved in "textures backup".', icon='INFO')
         else:
-            layout.label(text='the optimization step is irreversible, are you sure you do not want a backup', icon='ERROR')
-     
+            layout.label(text='The optimization step is irreversible, are you sure you do not want a backup?', icon='ERROR')
+
 class SFR_PT_SOCIALS_Panel(SFR_PT_Panel, Panel):
     bl_label = "Our Socials"
     bl_parent_id = "SFR_PT_B_Panel"
@@ -255,5 +255,5 @@ class SFR_PT_SOCIALS_Panel(SFR_PT_Panel, Panel):
             text="Support and Feedback!",
             icon="HELP"
             ).url = "https://discord.gg/cnFdGQP"
-    
+
 preview_collections = {}

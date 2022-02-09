@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Context, Operator
 
 from .. import SFR_Settings
+from ..install_deps import dependencies
 
 
 class SFR_AnimationBenchmark(Operator):
@@ -11,12 +12,14 @@ class SFR_AnimationBenchmark(Operator):
 
     @classmethod
     def poll(cls, context: Context):
-        return context.scene.render.engine == 'CYCLES'
+        if not dependencies.checked or dependencies.needs_install:
+            dependencies.check_dependencies()
+
+        return context.scene.render.engine == 'CYCLES' and not dependencies.needs_install
 
     def invoke(self, context, event):
-        
         return context.window_manager.invoke_props_dialog(self, width = 400)
-    
+
     def draw(self,context):
         layout = self.layout
         layout.label(text = "Benchmarking your scene can take a while.")

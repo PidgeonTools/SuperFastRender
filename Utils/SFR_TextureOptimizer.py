@@ -4,6 +4,7 @@ import os
 nc = os.path.normcase
 from distutils.dir_util import copy_tree
 from .. import SFR_Settings
+from ..install_deps import dependencies
 from .SFR_ImageResizer import resize_image
 
 class SFR_TextureOptimizer(Operator):
@@ -11,10 +12,17 @@ class SFR_TextureOptimizer(Operator):
     bl_label = "Texture Optimizer"
     bl_description = "Optimizes your textures"
 
+    @classmethod
+    def poll(cls, context: Context):
+        if not dependencies.checked or dependencies.needs_install:
+            dependencies.check_dependencies()
+
+        return not dependencies.needs_install
+
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width = 400)
 
-    def draw(self,context):
+    def draw(self, context):
         layout = self.layout
         layout.label(text = "Optimizing your textures can take a while.")
         layout.label(text = "We recommend you open the System Console, if you are on Windows.")
@@ -26,8 +34,7 @@ class SFR_TextureOptimizer(Operator):
         layout.label(text = "To proceed with the optimization, press [OK]")
 
     def execute(self, context: Context):
-        
-        #put all images into one folder
+        # put all images into one folder
         bpy.ops.file.pack_all()
         bpy.ops.file.unpack_all(method="USE_LOCAL")
         scene = context.scene
@@ -47,7 +54,7 @@ class SFR_TextureOptimizer(Operator):
         Translucency = ["translucency","transmission","translucent"]
         AO = ["ao","ambient occlusion","occlusion"]
 
-        #make skimage not give warning
+        # make skimage not give warning
         import imageio.core.util
         def ignore_warnings(*args, **kwargs):
             pass

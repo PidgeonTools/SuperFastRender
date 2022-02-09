@@ -15,10 +15,9 @@ class SFR_Benchmark_cy(Operator):
     bl_description = "Tests your scene to detect the best optimization settings."
 
     def invoke(self, context, event):
-        
         return context.window_manager.invoke_props_dialog(self, width = 400)
-    
-    def draw(self,context):
+
+    def draw(self, context):
         layout = self.layout
         layout.label(text = "Benchmarking your scene can take a while.")
         layout.label(text = "We recommend you open the System Console, if you are on Windows.")
@@ -42,7 +41,7 @@ class SFR_Benchmark_cy(Operator):
             dependencies.check_dependencies()
 
         return context.scene.render.engine == 'CYCLES' and not dependencies.needs_install
-    
+
     def execute(self, context: Context):
 
         #####################
