@@ -109,7 +109,7 @@ class SFR_Settings(PropertyGroup):
         default=0,
         max=7,
         min=0,
-        description="the factor by which the ambient occlusion textures will be scaled down, 0 = unaffected \nrecomended: 0",
+        description="the factor by which the diffuse or albedo textures will be scaled down, 0 = unaffected \nrecommended: 0",
         options=set(),  # Not animatable!
     )
     ao_resize: IntProperty(
@@ -117,7 +117,7 @@ class SFR_Settings(PropertyGroup):
         default=2,
         max=7,
         min=0,
-        description="the factor by which the roughness or glossiness textures will be scaled down, 0 = unaffected \nrecomended: 2",
+        description="the factor by which the ambient occlusion textures will be scaled down, 0 = unaffected \nrecommended: 2",
         options=set(),  # Not animatable!
     )
     specular_resize: IntProperty(
@@ -125,7 +125,7 @@ class SFR_Settings(PropertyGroup):
         default=2,
         max=7,
         min=0,
-        description="the factor by which the specular or metallic textures will be scaled down, 0 = unaffected \nrecomended: 2",
+        description="the factor by which the specular or metallic textures will be scaled down, 0 = unaffected \nrecommended: 2",
         options=set(),  # Not animatable!
     )
     roughness_resize: IntProperty(
@@ -133,7 +133,7 @@ class SFR_Settings(PropertyGroup):
         default=2,
         max=7,
         min=0,
-        description="the factor by which the roughness or glossiness textures will be scaled down, 0 = unaffected \nrecomended: 2",
+        description="the factor by which the roughness or glossiness textures will be scaled down, 0 = unaffected \nrecommended: 2",
         options=set(),  # Not animatable!
     )
     normal_resize: IntProperty(
@@ -141,7 +141,7 @@ class SFR_Settings(PropertyGroup):
         default=1,
         max=7,
         min=0,
-        description="the factor by which the normal or bump textures will be scaled down, 0 = unaffected \nrecomended: 1",
+        description="the factor by which the normal or bump textures will be scaled down, 0 = unaffected \nrecommended: 1",
         options=set(),  # Not animatable!
     )
     opacity_resize: IntProperty(
@@ -149,7 +149,7 @@ class SFR_Settings(PropertyGroup):
         default=1,
         max=7,
         min=0,
-        description="the factor by which the opacity or transparency textures will be scaled down, 0 = unaffected \nrecomended: 1",
+        description="the factor by which the opacity or transparency textures will be scaled down, 0 = unaffected \nrecommended: 1",
         options=set(),  # Not animatable!
     )
     translucency_resize: IntProperty(
@@ -157,11 +157,11 @@ class SFR_Settings(PropertyGroup):
         default=1,
         max=7,
         min=0,
-        description="the factor by which the translucency textures will be scaled down, 0 = unaffected \nrecomended: 1",
+        description="the factor by which the translucency textures will be scaled down, 0 = unaffected \nrecommended: 1",
         options=set(),  # Not animatable!
     )
     create_backup: BoolProperty(
         name="Create Backup",
         default=True,
-        description='Creates a backup of all the image files in the folder "textures backup"\nwe heavily recomend to keep this enabled'
+        description='Creates a backup of all the image files in the folder "textures backup"\nwe heavily recommend to keep this enabled'
     )
