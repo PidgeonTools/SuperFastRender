@@ -102,6 +102,7 @@ class SFR_PT_RSO_Panel(SFR_PT_Panel, Panel):
         RenderEngine = scene.render.engine
 
         if RenderEngine == "CYCLES":
+            layout.active = not dependencies.needs_install
 
             detection_method = layout.column(align=True)
 
@@ -187,6 +188,8 @@ class SFR_PT_TO_Panel(SFR_PT_Panel, Panel):
         layout = self.layout
         scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
+
+        layout.active = not dependencies.needs_install
 
         layout.label(text="Texture Optimization Factor")
         col = layout.column(align=True)
