@@ -7,6 +7,7 @@ from bpy.props import (
 )
 from .install_deps import (
     dependencies,
+    required_dependencies,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
     SFR_OT_OpenAddonPrefs,
@@ -26,7 +27,7 @@ from . import addon_updater_ops
 bl_info = {
     "name": "Super Fast Render (SFR)",
     "author": "Kevin Lorengel, Chris Bond (Kamikaze)",
-    "version": (3, 0, 0),
+    "version": (3, 0, 1),
     "blender": (2, 92, 0),
     "location": "Properties > Render > Super Fast Render",
     "description": "SFR optimizes your scene, so you render faster!",
@@ -144,6 +145,8 @@ def register():
     # in case of broken version, try to register the updater first
     # so that users can revert back to a working version
     addon_updater_ops.register(bl_info)
+
+    dependencies.check_dependencies()
 
     # register the example panel, to show updater buttons
     for cls in classes:

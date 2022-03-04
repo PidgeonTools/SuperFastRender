@@ -1,18 +1,100 @@
 import bpy
-import sys
+import importlib
+import os
 import subprocess
+import sys
 from bpy.types import Operator
+from collections import namedtuple
+
+
+# functions inspired by https://github.com/robertguetzkow/blender-python-examples
+Dependency = namedtuple("Dependency", ["module", "package", "name", "skip_import"])
+
+required_dependencies = (
+    Dependency(module="cv2", package="opencv-python", name="cv2", skip_import=False),
+    Dependency(module=None, package="opencv-contrib-python", name=None, skip_import=True),
+    Dependency(module="numpy", package="numpy", name="numpy", skip_import=False),
+    Dependency(module="skimage", package="scikit-image", name="skimage", skip_import=False),
+)
+
+
+def import_module(module_name, global_name=None):
+    """
+    Import a module.
+    :param module_name: Module to import.
+    :param global_name: (Optional) Name under which the module is imported. If None the module_name will be used.
+       This allows to import under a different name with the same effect as e.g. "import numpy as np" where "np" is
+       the global_name under which the module can be accessed.
+    :raises: ImportError and ModuleNotFoundError
+    """
+
+    if global_name is None:
+        global_name = module_name
+
+    if global_name in globals():
+        importlib.reload(globals()[global_name])
+    else:
+        # Attempt to import the module and assign it to globals dictionary. This allow to access the module under
+        # the given name, just like the regular import would.
+        globals()[global_name] = importlib.import_module(module_name)
+
+
+def install_pip():
+    """
+    Installs pip if not already present. Please note that ensurepip.bootstrap() also calls pip, which adds the
+    environment variable PIP_REQ_TRACKER. After ensurepip.bootstrap() finishes execution, the directory doesn't exist
+    anymore. However, when subprocess is used to call pip, in order to install a package, the environment variables
+    still contain PIP_REQ_TRACKER with the now nonexistent path. This is a problem since pip checks if PIP_REQ_TRACKER
+    is set and if it is, attempts to use it as temp directory. This would result in an error because the
+    directory can't be found. Therefore, PIP_REQ_TRACKER needs to be removed from environment variables.
+    :return:
+    """
+
+    try:
+        # Check if pip is already installed
+        subprocess.run([sys.executable, "-m", "pip", "--version"], check=True)
+    except subprocess.CalledProcessError:
+        import ensurepip
+
+        ensurepip.bootstrap()
+        os.environ.pop("PIP_REQ_TRACKER", None)
+
+
+def install_module(module_name, package_name=None):
+    """
+    Installs the package through pip.
+    :param module_name: Module to install.
+    :param package_name: (Optional) Name of the package that needs to be installed. If None it is assumed to be equal
+       to the module_name.
+    :param global_name: (Optional) Name under which the module is imported. If None the module_name will be used.
+       This allows to import under a different name with the same effect as e.g. "import numpy as np" where "np" is
+       the global_name under which the module can be accessed.
+    :raises: subprocess.CalledProcessError and ImportError
+    """
+
+    if package_name is None:
+        package_name = module_name
+
+    # Blender disables the loading of user site-packages by default. However, pip will still check them to determine
+    # if a dependency is already installed. This can cause problems if the packages is installed in the user
+    # site-packages and pip deems the requirement satisfied, but Blender cannot import the package from the user
+    # site-packages. Hence, the environment variable PYTHONNOUSERSITE is set to disallow pip from checking the user
+    # site-packages. If the package is not already installed for Blender's Python interpreter, it will then try to.
+    # The paths used by pip can be checked with `subprocess.run([sys.executable, "-m", "site"], check=True)`
+
+    # Create a copy of the environment variables and modify them for the subprocess call
+    environ_copy = dict(os.environ)
+    environ_copy["PYTHONNOUSERSITE"] = "1"
+
+    subprocess.run([sys.executable, "-m", "pip", "install", package_name], check=True, env=environ_copy)
 
 
 class Dependencies_check_singleton(object):
     def __init__(self):
         self._checked = False
+        self._needs_install = False
         self._error = False
         self._success = False
-
-        self._needs_cv2 = False
-        self._needs_numpy = False
-        self._needs_skimage = False
 
     # Properties
 
@@ -30,58 +112,23 @@ class Dependencies_check_singleton(object):
 
     @property
     def needs_install(self):
-        return True in [
-            self.needs_cv2,
-            self.needs_numpy,
-            self.needs_skimage,
-        ]
-
-    @property
-    def needs_cv2(self):
-        return self._needs_cv2
-
-    @property
-    def needs_numpy(self):
-        return self._needs_numpy
-
-    @property
-    def needs_skimage(self):
-        return self._needs_skimage
+        return self._needs_install
 
     # Methods
 
     def check_dependencies(self):
         self._checked = False
-        self._error = False
-        self._success = False
-
-        self._needs_cv2 = False
-        self._needs_numpy = False
-        self._needs_skimage = False
 
         try:
-            print("Checking for cv2...")
-            import cv2
-            print("cv2 found.")
-        except ImportError:
-            print("cv2 NOT found.")
-            self._needs_cv2 = True
-
-        try:
-            print("Checking for numpy...")
-            import numpy
-            print("numpy found.")
-        except ImportError:
-            print("numpy NOT found.")
-            self._needs_numpy = True
-
-        try:
-            print("Checking for scikit-image...")
-            from skimage import io
-            print("scikit-image found.")
-        except ImportError:
-            print("scikit-image NOT found.")
-            self._needs_skimage = True
+            for dependency in required_dependencies:
+                if dependency.skip_import: continue
+                print(f"Checking for {dependency.module}...")
+                import_module(dependency.module, dependency.name)
+                print(f"Found {dependency.module}.")
+            self._needs_install = False
+        except ModuleNotFoundError:
+            print("One or more dependencies need to be installed.")
+            self._needs_install = True
 
         self._checked = True
 
@@ -90,62 +137,23 @@ class Dependencies_check_singleton(object):
         self._success = False
 
         # Update pip
-        path_to_python = sys.executable if bpy.app.version > (
-            2, 90) else bpy.app.binary_path_python
-        try:
-            print("Updating pip...")
-            subprocess.run([path_to_python, "-m", "ensurepip"], check=True)
-            subprocess.run([path_to_python, "-m", "pip",
-                            "install", "--upgrade", "pip"], check=True)
-            print("Successfully updated pip.")
-        except subprocess.CalledProcessError as e:
-            self._error = True
-            print("Error updating pip!", e.__str__())
-            # raise
-            return
+        print("Ensuring pip is installed...")
+        install_pip()
 
-        # Install cv2
-        if self.needs_cv2:
+        for dependency in required_dependencies:
+            package_name = dependency.package if dependency.package is not None else dependency.module
+            print(f"Installing {package_name}...")
             try:
-                print("Installing cv2...")
-                subprocess.run([path_to_python, "-m", "pip", "install",
-                                "--upgrade", "opencv-python"], check=True)
-                subprocess.run([path_to_python, "-m", "pip", "install",
-                                "--upgrade", "opencv-contrib-python"], check=True)
-                import cv2
-                self._needs_cv2 = False
-            except (subprocess.CalledProcessError, ImportError) as e:
+                install_module(module_name=dependency.module, package_name=dependency.package)
+            except (subprocess.CalledProcessError, ImportError) as err:
                 self._error = True
-                print("Error installing cv2!", e.__str__())
-                return
-
-        # Install numpy
-        if self.needs_numpy:
-            try:
-                print("Installing numpy...")
-                subprocess.run([path_to_python, "-m", "pip",
-                                "install", "--upgrade", "numpy"], check=True)
-                import numpy
-                self._needs_numpy = False
-            except (subprocess.CalledProcessError, ImportError) as e:
-                self._error = True
-                print("Error installing numpy!", e.__str__())
-                return
-
-        # Install scikit-image
-        if self.needs_skimage:
-            try:
-                print("Installing scikit-image...")
-                subprocess.run([path_to_python, "-m", "pip", "install",
-                                "--upgrade", "scikit-image"], check=True)
-                from skimage import io
-                self._needs_skimage = False
-            except (subprocess.CalledProcessError, ImportError) as e:
-                self._error = True
-                print("Error installing scikit-image!", e.__str__())
-                return
+                print(f"Error installing {package_name}!")
+                print(str(err))
+                raise ValueError(package_name)
 
         self._success = True
+
+        self.check_dependencies()
 
 
 dependencies = Dependencies_check_singleton()
@@ -179,7 +187,10 @@ class SFR_OT_InstallDependencies(Operator):
         return dependencies.needs_install
 
     def execute(self, context):
-        dependencies.install_dependencies()
+        try:
+            dependencies.install_dependencies()
+        except ValueError as ve:
+            self.report({"ERROR"}, f"Error installing package {ve.args[0]}.\n\nCheck the System Console for details.")
 
         if dependencies.error:
             return {'CANCELLED'}
