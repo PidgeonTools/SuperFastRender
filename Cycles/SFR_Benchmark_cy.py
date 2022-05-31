@@ -113,7 +113,7 @@ class SFR_Benchmark_cy(Operator):
         old_ao_bounces = cycles.ao_bounces
         scene.render.simplify_subdivision = 2
         scene.render.simplify_child_particles = 0.2
-        cycles.texture_limit = '2048'
+        cycles.texture_limit = '256'
         cycles.ao_bounces = 2
         # render
         old_simplify_subdivision_render = scene.render.simplify_subdivision_render
@@ -122,7 +122,7 @@ class SFR_Benchmark_cy(Operator):
         old_ao_bounces_render = cycles.ao_bounces_render
         scene.render.simplify_subdivision_render = 4
         scene.render.simplify_child_particles_render = 1
-        cycles.texture_limit_render = '4096'
+        cycles.texture_limit_render = '128'
         cycles.ao_bounces_render = 4
         # culling
         cycles.use_camera_cull = True
