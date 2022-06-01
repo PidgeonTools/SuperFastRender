@@ -12,15 +12,27 @@ from .install_deps import (
     SFR_OT_InstallDependencies,
     SFR_OT_OpenAddonPrefs,
 )
+# BASE
 from .SFR_Settings import SFR_Settings
 from .SRF_Complimentary import SFR_Complimentary
-from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
-from .Utils.SFR_AnimationBenchmark import SFR_AnimationBenchmark
+
+# PANEL
+from .SFR_Panel import SFR_PT_B_Panel, SFR_PT_RSO_Panel, SFR_PT_TO_Panel, SFR_PT_MO_Panel, SFR_PT_SOCIALS_Panel
+
+# RSO
 from .Cycles.SFR_Super_cy import SFR_Super_cy
 from .Cycles.SFR_High_cy import SFR_High_cy
 from .Cycles.SFR_Beauty_cy import SFR_Beauty_cy
-from .SFR_Panel import SFR_PT_B_Panel, SFR_PT_RSO_Panel, SFR_PT_TO_Panel, SFR_PT_SOCIALS_Panel
+from .Cycles.SFR_Benchmark_cy import SFR_Benchmark_cy
+from .Utils.SFR_AnimationBenchmark import SFR_AnimationBenchmark
+
+# TO
 from .Utils.SFR_TextureOptimizer import SFR_TextureOptimizer
+
+# MO
+from .Utils.SFR_AnimMeshOptimization import SFR_AnimMeshOptimization
+from .Utils.SFR_MeshOptimization import SFR_MeshOptimization
+from .Utils.SFR_MeshOptimizationRemove import SFR_MeshOptimizationRemove
 
 from . import addon_updater_ops
 
@@ -121,22 +133,35 @@ class SIDPreferences(bpy.types.AddonPreferences):
 
 
 classes = (
-    SFR_Beauty_cy,
-    SFR_High_cy,
-    SFR_Super_cy,
-    SFR_Benchmark_cy,
+    # BASE
     SFR_Complimentary,
-    SFR_PT_B_Panel,
-    SFR_PT_RSO_Panel,
-    SFR_PT_TO_Panel,
-    SFR_PT_SOCIALS_Panel,
     SFR_Settings,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
     SIDPreferences,
-    SFR_AnimationBenchmark,
     SFR_OT_OpenAddonPrefs,
-    SFR_TextureOptimizer
+
+    # PANELS
+    SFR_PT_B_Panel,
+    SFR_PT_RSO_Panel,
+    SFR_PT_TO_Panel,
+    SFR_PT_MO_Panel,
+    SFR_PT_SOCIALS_Panel,
+
+    # RSO
+    SFR_Beauty_cy,
+    SFR_High_cy,
+    SFR_Super_cy,
+    SFR_Benchmark_cy,
+    SFR_AnimationBenchmark,
+    
+    # TO
+    SFR_TextureOptimizer,
+
+    # MO
+    SFR_AnimMeshOptimization,
+    SFR_MeshOptimization,
+    SFR_MeshOptimizationRemove
 )
 
 

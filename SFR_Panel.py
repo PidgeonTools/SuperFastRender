@@ -213,6 +213,36 @@ class SFR_PT_TO_Panel(SFR_PT_Panel, Panel):
         else:
             layout.label(text='The optimization step is irreversible, are you sure you do not want a backup?', icon='ERROR')
 
+class SFR_PT_MO_Panel(SFR_PT_Panel, Panel):
+    bl_label = "Mesh Optimizer"
+    bl_parent_id = "SFR_PT_B_Panel"
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text="", icon="MESH_ICOSPHERE")
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        settings: SFR_Settings = scene.sfr_settings
+
+        layout.active = not dependencies.needs_install
+
+        layout.label(text="Mesh Optimization Settings")
+        col = layout.column(align=True)
+        col.prop(settings, "mo_max_quality", slider=True)
+        col.prop(settings, "mo_min_quality", slider=True)
+        col.prop(settings, "mo_quality_change", slider=True)
+        col.separator()
+        col.prop(settings, "mo_frame_skipped", slider=True)
+        col.separator()
+
+        layout.label(text="Optimize Meshes")
+        row = layout.row()
+        row.operator("render.superfastrender_meshoptim", icon="MESH_ICOSPHERE", text="Frame Optimization")
+        row.operator("render.superfastrender_animbench", icon="MESH_UVSPHERE", text="Animation Optimization")
+        row.operator("render.superfastrender_meshoptimremove", icon="LOOP_BACK", text="Remove Optimization")
+
 class SFR_PT_SOCIALS_Panel(SFR_PT_Panel, Panel):
     bl_label = "Our Socials"
     bl_parent_id = "SFR_PT_B_Panel"
