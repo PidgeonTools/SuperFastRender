@@ -191,7 +191,7 @@ class SFR_Settings(PropertyGroup):
         default=0.1,
         max=1.0,
         min=0.01,
-        description="how quickly your mesh quality should be reduced in relation to distance\nrecommended: 0.001",
+        description="how quickly your mesh quality should be reduced in relation to distance\nrecommended: 0.1",
         options=set(),  # Not animatable!
     )
 
