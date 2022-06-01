@@ -1,8 +1,10 @@
+from sys import base_prefix
 import bpy
-from bpy.types import Context, Operator
+from bpy.types import Context, Image, Operator
 import os
 nc = os.path.normcase
 from distutils.dir_util import copy_tree
+import pathlib
 from .. import SFR_Settings
 from ..install_deps import dependencies
 from .SFR_ImageResizer import resize_image
@@ -39,7 +41,8 @@ class SFR_TextureOptimizer(Operator):
         bpy.ops.file.unpack_all(method="USE_LOCAL")
         scene = context.scene
         settings: SFR_Settings = scene.sfr_settings
-        path = bpy.path.abspath("//textures/")
+        base_path_relative = "//textures/"
+        path = bpy.path.abspath(base_path_relative)
 
         if settings.create_backup:
             fromDirectory = path
@@ -79,8 +82,21 @@ class SFR_TextureOptimizer(Operator):
             if setting > 0:
                 if [name for name in prop if name in nc_file]:
                     if add_to_seen(file, type):
-                        return
+                        return True
                     resize_image(file, setting, path)
+                    return True
+            return False
+
+        def remap_image_texture(base_path_relative, file, nc_file):
+            # image format was converted to PNG; we now need to point at the new PNG file
+            orig_path = base_path_relative + file
+            orig_nc_path = base_path_relative + nc_file
+            png_file = str(pathlib.Path(file).with_suffix(".png"))
+            for img in bpy.data.images: # type: Image
+                if img.filepath in (orig_path, orig_nc_path):
+                    img.filepath = base_path_relative + png_file
+                    img.reload()
+
 
         for file in os.listdir(path):
             if not os.path.isfile(os.path.join(path, file)):
@@ -88,13 +104,17 @@ class SFR_TextureOptimizer(Operator):
             # lowercase file name for comparisons
             nc_file = nc(file)
 
-            resize_if_not_seen(path, file, nc_file, settings.diffuse_resize, Diffuse, 'Diffuse')
-            resize_if_not_seen(path, file, nc_file, settings.ao_resize, AO, 'AO')
-            resize_if_not_seen(path, file, nc_file, settings.specular_resize, Specular, 'Specular')
-            resize_if_not_seen(path, file, nc_file, settings.roughness_resize, Roughness, 'Roughness')
-            resize_if_not_seen(path, file, nc_file, settings.opacity_resize, Opacity, 'Opacity')
-            resize_if_not_seen(path, file, nc_file, settings.normal_resize, Normal, 'Normal')
-            resize_if_not_seen(path, file, nc_file, settings.translucency_resize, Translucency, 'Translucency')
+            results = [
+                resize_if_not_seen(path, file, nc_file, settings.diffuse_resize, Diffuse, 'Diffuse'),
+                resize_if_not_seen(path, file, nc_file, settings.ao_resize, AO, 'AO'),
+                resize_if_not_seen(path, file, nc_file, settings.specular_resize, Specular, 'Specular'),
+                resize_if_not_seen(path, file, nc_file, settings.roughness_resize, Roughness, 'Roughness'),
+                resize_if_not_seen(path, file, nc_file, settings.opacity_resize, Opacity, 'Opacity'),
+                resize_if_not_seen(path, file, nc_file, settings.normal_resize, Normal, 'Normal'),
+                resize_if_not_seen(path, file, nc_file, settings.translucency_resize, Translucency, 'Translucency'),
+            ]
+            if True in results:
+                remap_image_texture(base_path_relative, file, nc_file)
 
         print("TEXTURE OPTIMIZATION: COMPLETED")
 
