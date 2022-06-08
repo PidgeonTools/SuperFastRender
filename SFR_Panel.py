@@ -1,6 +1,7 @@
 import typing
 import os
 import bpy
+import bpy.utils.previews
 from bpy.types import Panel
 from .SFR_Settings import SFR_Settings
 from .install_deps import dependencies
