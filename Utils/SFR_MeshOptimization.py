@@ -32,11 +32,17 @@ class SFR_MeshOptimization(Operator):
 
         settings: SFR_Settings = context.scene.sfr_settings
         active_camera_loc = bpy.context.scene.camera.location
+        depsgraph = bpy.context.evaluated_depsgraph_get()
 
         for selected_object in bpy.context.selected_objects:
             if selected_object.type in {'MESH','CURVE', 'SURFACE', 'FONT'}:
-                
-                decimate_ratio = clamp((1-(calculate_object_distance(selected_object.location, active_camera_loc)*settings.mo_quality_change/100))**5,settings.mo_min_quality,settings.mo_max_quality)
+
+                selected_object_evaluated = selected_object.evaluated_get(depsgraph)
+                selected_object_mesh = selected_object_evaluated.to_mesh()
+
+                polygon_density = len(selected_object_mesh.polygons) / (selected_object.dimensions[0] * selected_object.dimensions[1] * selected_object.dimensions[2]) / 1000
+                print(polygon_density)
+                decimate_ratio = clamp((1-((calculate_object_distance(selected_object.location, active_camera_loc) * polygon_density) * settings.mo_quality_change / 100))**5,settings.mo_min_quality,settings.mo_max_quality)
     
                 if "[SFR] - Decimate" not in selected_object.modifiers:
                     decimate_modifier = selected_object.modifiers.new(name="[SFR] - Decimate", type='DECIMATE')
