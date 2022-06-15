@@ -52,8 +52,8 @@ class SFR_Settings(PropertyGroup):
     )
     frame_skipped: IntProperty(
         name="Frame Offset",
-        default=50,
-        max=100,
+        default=10,
+        max=20,
         min=1,
         description="Frames between automatic benchmarks",
         options=set(),  # Not animatable!
@@ -164,42 +164,4 @@ class SFR_Settings(PropertyGroup):
         name="Create Backup",
         default=True,
         description='Creates a backup of all the image files in the folder "textures backup"\nwe heavily recommend to keep this enabled'
-    )
-
-#### MESH OPTIMIZER ####
-
-    mo_max_quality: FloatProperty(
-        name="max. Quality",
-        default=1,
-        max=1,
-        min=0.5,
-        description="values below 1 means that it will never be at full qualtiy\nrecommended: 1",
-        options=set(),  # Not animatable!
-    )
-
-    mo_min_quality: FloatProperty(
-        name="min. Quality",
-        default=0.05,
-        max=0.5,
-        min=0,
-        description="values above 0 will limit how much the mesh will be optimized\nrecommended: 0.05",
-        options=set(),  # Not animatable!
-    )
-
-    mo_quality_change: FloatProperty(
-        name="Quality change",
-        default=0.1,
-        max=1.0,
-        min=0.01,
-        description="how quickly your mesh quality should be reduced in relation to distance\nrecommended: 0.1",
-        options=set(),  # Not animatable!
-    )
-
-    mo_frame_skipped: IntProperty(
-        name="Frame Offset",
-        default=50,
-        max=100,
-        min=1,
-        description="Frames between mesh optimization steps",
-        options=set(),  # Not animatable!
     )
