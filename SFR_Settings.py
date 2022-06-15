@@ -203,3 +203,24 @@ class SFR_Settings(PropertyGroup):
         description="Frames between mesh optimization steps",
         options=set(),  # Not animatable!
     )
+
+    mo_render_decimation: BoolProperty(
+        name="Render Decimation",
+        default=True,
+        description='Enables the decimation of the mesh in the render\n It will take longer to run, but will reduce render memeory consumption\nrecommended: enabled'
+    )
+
+    mo_viewport_decimation: BoolProperty(
+        name="Viewport Decimation",
+        default=True,
+        description='Enables the decimation of the mesh in the viewport\n It will take longer to run, but will provide a smoother viewport\nrecommended: enabled'
+    )
+
+    mo_viewport_decimation_ratio: FloatProperty(
+        name="Viewport Decimation Factor",
+        default=0.5,
+        max=1.0,
+        min=0.01,
+        description="How much the selected meshes should be decimated by in viewport\nrecommended: 0.5",
+        options=set(),  # Not animatable!
+    )

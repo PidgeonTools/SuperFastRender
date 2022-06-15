@@ -3,7 +3,7 @@ from bpy.types import Context, Operator
 
 from .. import SFR_Settings
 from ..install_deps import dependencies
-
+from .warning_message import draw_warning
 
 class SFR_AnimationBenchmark(Operator):
     bl_idname = "render.superfastrender_animbench"
@@ -20,16 +20,8 @@ class SFR_AnimationBenchmark(Operator):
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width = 400)
 
-    def draw(self,context):
-        layout = self.layout
-        layout.label(text = "Benchmarking your scene can take a while.")
-        layout.label(text = "We recommend you open the System Console, if you are on Windows.")
-        layout.label(text = 'To do so, go to your top bar "Window" -> "Toggle System Console"')
-        layout.label(text = "There you will be able to see the progress.")
-        layout.separator()
-        layout.label(text = "Blender will appear to freeze, please be patient.")
-        layout.separator()
-        layout.label(text = "To proceed with the benchmark, press [OK]")
+    def draw(self, context):
+        draw_warning(self, context)
 
     def execute(self, context: Context):
 

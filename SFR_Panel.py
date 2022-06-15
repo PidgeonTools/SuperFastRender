@@ -231,9 +231,15 @@ class SFR_PT_MO_Panel(SFR_PT_Panel, Panel):
 
         layout.label(text="Mesh Optimization Settings")
         col = layout.column(align=True)
+        col.prop(settings, "mo_render_decimation")
+        col.prop(settings, "mo_viewport_decimation")
+        col.separator()
+
         col.prop(settings, "mo_max_quality", slider=True)
         col.prop(settings, "mo_min_quality", slider=True)
         col.prop(settings, "mo_quality_change", slider=True)
+        col.separator()
+        col.prop(settings, "mo_viewport_decimation_ratio", slider=True)
         col.separator()
         col.prop(settings, "mo_frame_skipped", slider=True)
         col.separator()
