@@ -1,11 +1,12 @@
 import typing
 import os
 import bpy
+import bpy.utils.previews
 from bpy.types import Panel
 from .SFR_Settings import SFR_Settings
 from .install_deps import dependencies
 
-ICON_DIR_NAME = "icons"
+ICON_DIR_NAME = "Icons"
 
 class IconManager:
     def __init__(self, additional_paths: typing.Optional[typing.List[str]] = None):

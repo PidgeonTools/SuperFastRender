@@ -12,8 +12,9 @@ Dependency = namedtuple("Dependency", ["module", "package", "name", "skip_import
 
 required_dependencies = (
     Dependency(module="cv2", package="opencv-python", name="cv2", skip_import=False),
-    Dependency(module=None, package="opencv-contrib-python", name=None, skip_import=True),
+    Dependency(module="cv2", package="opencv-contrib-python", name="cv2", skip_import=False),
     Dependency(module="numpy", package="numpy", name="numpy", skip_import=False),
+    Dependency(module="imagecodecs", package="imagecodecs", name="imagecodecs", skip_import=False),
     Dependency(module="skimage", package="scikit-image", name="skimage", skip_import=False),
 )
 
