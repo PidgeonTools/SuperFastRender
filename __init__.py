@@ -1,4 +1,3 @@
-import os
 import bpy
 from bpy.props import (
     PointerProperty,
@@ -7,7 +6,6 @@ from bpy.props import (
 )
 from .install_deps import (
     dependencies,
-    required_dependencies,
     SFR_OT_CheckDependencies,
     SFR_OT_InstallDependencies,
     SFR_OT_OpenAddonPrefs,
@@ -27,7 +25,7 @@ from . import addon_updater_ops
 bl_info = {
     "name": "Super Fast Render (SFR)",
     "author": "Kevin Lorengel, Chris Bond (Kamikaze)",
-    "version": (3, 1, 2),
+    "version": (3, 1, 3),
     "blender": (2, 92, 0),
     "location": "Properties > Render > Super Fast Render",
     "description": "SFR optimizes your scene, so you render faster!",

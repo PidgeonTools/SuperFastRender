@@ -69,20 +69,28 @@ class SFR_Benchmark_cy(Operator):
 
         # set max bounces
         cycles.max_bounces = 512
-        cycles.diffuse_bounces = 0
-        cycles.glossy_bounces = 0
-        cycles.transparent_max_bounces = 0
-        cycles.transmission_bounces = 0
-        cycles.volume_bounces = 0
+        if settings.use_diffuse:
+            cycles.diffuse_bounces = 0
+        if settings.use_glossy:
+            cycles.glossy_bounces = 0
+        if settings.use_transparent:
+            cycles.transparent_max_bounces = 0
+        if settings.use_transmission:
+            cycles.transmission_bounces = 0
+        if settings.use_volume:
+            cycles.volume_bounces = 0
+            cycles.volume_step_rate = 5
+            cycles.volume_preview_step_rate = 5
+            cycles.volume_max_steps = 256
+        if settings.use_caustics:
+            cycles.caustics_reflective = False
+            cycles.caustics_refractive = False
+            cycles.blur_glossy = 10
+        if settings.use_indirect:
+            cycles.sample_clamp_indirect = 10
+
         cycles.light_sampling_threshold = 0.01
         cycles.sample_clamp_direct = 0
-        cycles.sample_clamp_indirect = 10
-        cycles.caustics_reflective = False
-        cycles.caustics_refractive = False
-        cycles.blur_glossy = 10
-        cycles.volume_step_rate = 5
-        cycles.volume_preview_step_rate = 5
-        cycles.volume_max_steps = 256
 
         if self.insert_keyframes:
             keyframe_insert('cycles.max_bounces')
@@ -383,6 +391,7 @@ class SFR_Benchmark_cy(Operator):
         scene.render.resolution_x = oldResX
         scene.render.resolution_y = oldResY
         scene.render.resolution_percentage = oldPercent
+        cycles.samples = 4096
 
         ### TOTAL ###
         cycles.max_bounces = cycles.diffuse_bounces + cycles.glossy_bounces + cycles.transmission_bounces + cycles.volume_bounces
