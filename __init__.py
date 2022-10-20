@@ -31,6 +31,8 @@ bl_info = {
     "description": "SFR optimizes your scene, so you render faster!",
     "warning": "IN DEV VERSION",
     "wiki_url": "https://discord.gg/cnFdGQP",
+    "endpoint_url": "https://raw.githubusercontent.com/PidgeonTools/SAM-Endpoints/main/SuperFastRender.json",
+    "tracker_url": "https://github.com/PidgeonTools/SuperFastRender/issues",
     "category": "Render",
 }
 
