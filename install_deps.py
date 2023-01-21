@@ -75,6 +75,11 @@ def install_module(module_name, package_name=None):
 
     if package_name is None:
         package_name = module_name
+    
+    # Create a folder to install python modules
+    module_path = os.path.join(os.path.dirname(__file__), "python_modules")
+    if not os.path.exists(module_path):
+        os.mkdir(module_path)
 
     # Blender disables the loading of user site-packages by default. However, pip will still check them to determine
     # if a dependency is already installed. This can cause problems if the packages is installed in the user
@@ -87,7 +92,8 @@ def install_module(module_name, package_name=None):
     environ_copy = dict(os.environ)
     environ_copy["PYTHONNOUSERSITE"] = "1"
 
-    subprocess.run([sys.executable, "-m", "pip", "install", package_name], check=True, env=environ_copy)
+    subprocess.run([sys.executable, "-m", "pip", "install", "--target=", module_path, package_name], check=True, env=environ_copy)
+    sys.path.append(module_path)
 
 
 class Dependencies_check_singleton(object):
