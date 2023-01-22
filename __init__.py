@@ -1,10 +1,14 @@
+# To make sure installed modules work
+import os, sys
+module_path = os.path.join(os.path.dirname(__file__), "python_modules")
+sys.path.append(module_path) # Add a module path for this specific addon
+
 import bpy
 from bpy.props import (
     PointerProperty,
     BoolProperty,
     IntProperty
 )
-import os, sys
 from .install_deps import (
     dependencies,
     SFR_OT_CheckDependencies,
@@ -141,10 +145,7 @@ classes = (
 )
 
 
-def register():
-    module_path = os.path.join(os.path.dirname(__file__), "python_modules")
-    sys.path.append(module_path) # Add a module path for this specific addon
-
+def register(): 
     # addon updater code and configurations
     # in case of broken version, try to register the updater first
     # so that users can revert back to a working version
