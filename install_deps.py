@@ -93,7 +93,6 @@ def install_module(module_name, package_name=None):
     environ_copy["PYTHONNOUSERSITE"] = "1"
 
     subprocess.run([sys.executable, "-m", "pip", "install", "--target=", module_path, package_name], check=True, env=environ_copy)
-    
 
 class Dependencies_check_singleton(object):
     def __init__(self):
