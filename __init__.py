@@ -91,16 +91,11 @@ class SIDPreferences(bpy.types.AddonPreferences):
                 col.label(text="Check Blender's System Console or your terminal for errors.")
                 col.separator()
 
-            col.label(text="Blender must either:")
-            col.label(
-                text="    * be run as an Administrator, or")
-            col.label(
-                text="    * you must have write permissions to Blender's " \
-                    "installed location.")
             col = layout.column(align=True)
             col.label(
                 text="Installation may take a few minutes, and Blender will " \
                     "stop responding during this time.")
+            col.label(text="If the Install Dependencies button is still visible after this process completes, please restart Blender.")
 
             col.operator("initialise.sfr_install_dependencies")
         else:
