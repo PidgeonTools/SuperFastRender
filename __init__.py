@@ -1,3 +1,8 @@
+# To make sure installed modules work
+import os, sys
+module_path = os.path.join(os.path.dirname(__file__), "python_modules")
+sys.path.append(module_path) # Add a module path for this specific addon
+
 import bpy
 from bpy.props import (
     PointerProperty,
@@ -86,16 +91,11 @@ class SIDPreferences(bpy.types.AddonPreferences):
                 col.label(text="Check Blender's System Console or your terminal for errors.")
                 col.separator()
 
-            col.label(text="Blender must either:")
-            col.label(
-                text="    * be run as an Administrator, or")
-            col.label(
-                text="    * you must have write permissions to Blender's " \
-                    "installed location.")
             col = layout.column(align=True)
             col.label(
                 text="Installation may take a few minutes, and Blender will " \
                     "stop responding during this time.")
+            col.label(text="If the Install Dependencies button is still visible after this process completes, please restart Blender.")
 
             col.operator("initialise.sfr_install_dependencies")
         else:
@@ -140,7 +140,7 @@ classes = (
 )
 
 
-def register():
+def register(): 
     # addon updater code and configurations
     # in case of broken version, try to register the updater first
     # so that users can revert back to a working version
